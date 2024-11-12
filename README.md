@@ -16,9 +16,13 @@ Savoie Express est une application mobile de gestion des utilisateurs, intégran
 ## Installation et lancement du projet
 
 Pour installer les dépendances, exécutez la commande 
-```npm install```
+```bash 
+    npm install
+```
  Ensuite, lancez le projet avec la commande 
- ```npx start```. 
+ ```bash 
+    npx start
+ ``` 
 Cela démarrera l'application et vous pourrez accéder à la page de connexion pour tester l'authentification.
 
 ## Technologies utilisées
