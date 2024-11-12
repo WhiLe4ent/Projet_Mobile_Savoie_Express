@@ -21,7 +21,7 @@ Pour installer les dépendances, exécutez la commande
 ```
  Ensuite, lancez le projet avec la commande 
  ```bash 
-    npx start
+    npx expo start
  ``` 
 Cela démarrera l'application et vous pourrez accéder à la page de connexion pour tester l'authentification.
 
