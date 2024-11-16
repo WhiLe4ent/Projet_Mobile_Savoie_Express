@@ -14,6 +14,8 @@ const HomeVendeur = ({navigation}: RouterProps) => {
             <KeyboardAvoidingView behavior = "padding">
                 <Text>Bienvenue cher Vendeur</Text>
 
+                <Button title = "Ajouter une livraison" />
+                <Button title = "Suivre une livraison" />
                 <Button onPress={() => FIREBASE_AUTH.signOut()} title = "Se deconnecter" />
             </KeyboardAvoidingView>
         </View >
