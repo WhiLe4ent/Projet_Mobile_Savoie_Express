@@ -4,6 +4,7 @@ import theme from '../settings/Theme';
 import { Icon, IconButton } from 'react-native-paper';
 import React from 'react';
 import Home from '../screens/Home/Home';
+import DeliveriesList from '../screens/Deliveries/DeliveriesList';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,13 +35,16 @@ const TabNavigator = () =>
                     switch(route.name)
                     {
                         case 'Home':
-                            iconName = 'local-bar'
+                            iconName = 'home'
+                            break;
+                        case 'Deliveries':
+                            iconName = 'truck-delivery'
                             break;
                     }
                     
                     return (
                         <IconButton
-                            icon="home" 
+                            icon={iconName}
                             size={24}
                         />
                     );
@@ -55,6 +59,17 @@ const TabNavigator = () =>
                     tabBarLabel: 'Home',
                     headerShown: true,
                     headerTitle: 'Home',
+                    headerStyle,
+                    headerTitleStyle,
+                }}
+            />
+            <Tab.Screen 
+                name='Deliveries' 
+                component={DeliveriesList} 
+                options={{
+                    tabBarLabel: 'Deliveries',
+                    headerShown: true,
+                    headerTitle: 'Deliveries',
                     headerStyle,
                     headerTitleStyle,
                 }}

@@ -29,7 +29,7 @@ const Navigations = observer(() => {
     <NavigationContainer>
       <SheetProvider>
         <Stack.Navigator
-          initialRouteName={isLoggedIn ? 'Home' : 'Login'} // Navigate based on login state
+          initialRouteName={isLoggedIn ? 'TabScreens' : 'Login'} // Navigate based on login state
           screenOptions={{
             headerStyle,
             headerTitleStyle,
