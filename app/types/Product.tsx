@@ -10,7 +10,7 @@ export type Product = {
     name: string;
     reference: string;
     color: string;
-    size: string;
+    size: string; //cm
     quantity: number;
     currentSite: string;
     destinationSite?: string;

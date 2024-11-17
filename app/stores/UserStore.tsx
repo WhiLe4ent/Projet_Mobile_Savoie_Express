@@ -32,7 +32,6 @@ export default class UserStore {
   async setUser(uid: string) {
     if (uid) {
       try {
-        
         const userDocRef = doc(FIREBASE_DB, "Users", uid); // Reference to the user document
         const userDoc = await getDoc(userDocRef); // Fetch the document
 
