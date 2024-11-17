@@ -5,23 +5,24 @@ import { FIREBASE_AUTH } from '../../../FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { TextInput, Button, ActivityIndicator, Text, useTheme } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
-import { inject, observer } from 'mobx-react';
+import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
+import { LoginForm } from '../../types/User';
+import theme from '../../settings/Theme';
 
 const Login = observer(() => {
     const {userStore} = useStores();
     const [loading, setLoading] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const theme = useTheme();
     const navigation = useNavigation<any>();
-    const {control,handleSubmit,formState: { errors }} = useForm({
+    const {control,handleSubmit,formState: { errors }, getValues} = useForm({
       defaultValues: {
         email: '',
         password: '',
       },
     });
 
-    const signIn = async (data: { email: string; password: string }) => {
+    const signIn = async (data: LoginForm ) => {
       setLoading(true);
 
       try {
@@ -45,8 +46,8 @@ const Login = observer(() => {
       
     };
 
-    const goToSignUp = async (data: { email: string; password: string }) => {
-      console.log("data" + data.email + data.password);
+    const goToSignUp = async () => {
+      const data = getValues()
       navigation.navigate('Register',{initialEmail: data.email , initialPassword: data.password } );
     };
 
@@ -70,6 +71,8 @@ const Login = observer(() => {
               label="Email"
               keyboardType="email-address"
               placeholder="Enter your email"
+              placeholderTextColor={theme.colors.placeholder}
+              mode="flat"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -95,6 +98,8 @@ const Login = observer(() => {
             <TextInput
               label="Password"
               placeholder="Enter your password"
+              placeholderTextColor={theme.colors.placeholder}
+              mode="flat"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -106,6 +111,7 @@ const Login = observer(() => {
                 />
               }
               error={!!errors.password}
+              
               style={styles.input}
             />
           )}
@@ -120,7 +126,7 @@ const Login = observer(() => {
             <Button mode="contained" onPress={handleSubmit(signIn)} style={styles.button}>
               Sign In
             </Button>
-            <Button mode="text" onPress={handleSubmit(goToSignUp)} style={styles.button}>
+            <Button mode="text" onPress={goToSignUp} style={styles.button}>
               Create Account
             </Button>
           </View>

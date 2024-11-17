@@ -1,9 +1,9 @@
 export enum Role {
-    vendeur = 'vendeur',
-    rco = 'rco',
-    fiancialManahger = 'financial manager',
-    secretariat = 'secretariat',
-    expertProduit = 'expert produit'
+    vendeur = 'Vendeur',
+    rco = 'RCO',
+    fiancialManahger = 'Financial manager',
+    secretariat = 'Secretariat',
+    expertProduit = 'Expert produit'
 }
 
 export type User = {
@@ -11,16 +11,17 @@ export type User = {
     email: string 
     firstName: string 
     lastName: string
-    username: string
+    pseudo: string
     role: Role
 }
 
 export interface RegisterForm 
 {
-    email: string 
-    firstName: string 
-    lastName: string
-    username: string
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    pseudo: string,
     role: Role
 }
 

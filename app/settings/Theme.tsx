@@ -1,4 +1,4 @@
-import { MD3LightTheme as DefaultTheme, configureFonts } from 'react-native-paper';
+import { MD3LightTheme as DefaultTheme } from 'react-native-paper';
 
 const fontConfig = {
   default: {
@@ -33,6 +33,7 @@ const theme = {
     disabled: '#A0A0A0',
     placeholder: '#C7C7CD',
     backdrop: '#00000066',
+    fontConfig: fontConfig
   },
   roundness: 8,
 };

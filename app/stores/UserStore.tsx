@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootStore } from ".";
 import { User } from "../types/FirebaseUser";
 import { UserCredential } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 
 export default class UserStore {
