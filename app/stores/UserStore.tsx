@@ -42,7 +42,6 @@ export default class UserStore {
 
           // Optionally, save the user data to AsyncStorage
           await AsyncStorage.setItem("user", JSON.stringify(userData));
-          console.log("User data fetched and saved:", userData);
         } else {
           console.warn("No user document found for UID:", uid);
         }
@@ -100,8 +99,6 @@ export default class UserStore {
       this.token = '';
   
       await FIREBASE_AUTH.signOut();
-
-      console.log(JSON.stringify(this.user))
     } catch (e) {
       console.warn('Error during disconnect:', e);
     }

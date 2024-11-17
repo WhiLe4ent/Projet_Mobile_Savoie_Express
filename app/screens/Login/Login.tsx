@@ -35,8 +35,6 @@ const Login = observer(() => {
         if(response.user) {
           navigation.navigate('Home');
         }
-
-        console.log('Sign-in successful:', response.user);
       } catch (error: any) {
         console.error(error);
         Alert.alert('Sign-in Failed', error.message);
