@@ -1,10 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useEffect } from 'react';
 import theme from '../settings/Theme';
 import { Icon, IconButton } from 'react-native-paper';
 import React from 'react';
 import Home from '../screens/Home/Home';
 import DeliveriesList from '../screens/Deliveries/DeliveriesList';
+import Products from '../screens/Products/Products';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,7 +13,7 @@ export type TabStackNavigationList = {
 };
 
 const headerStyle = {
-    backgroundColor: 'transparent'
+    backgroundColor: '#006CFF'
 };
 
 const headerTitleStyle = {
@@ -39,6 +39,9 @@ const TabNavigator = () =>
                             break;
                         case 'Deliveries':
                             iconName = 'truck-delivery'
+                            break;
+                        case 'Products':
+                            iconName = 'package-variant-closed'
                             break;
                     }
                     
@@ -70,6 +73,17 @@ const TabNavigator = () =>
                     tabBarLabel: 'Deliveries',
                     headerShown: true,
                     headerTitle: 'Deliveries',
+                    headerStyle,
+                    headerTitleStyle,
+                }}
+            />
+            <Tab.Screen 
+                name='Products' 
+                component={Products} 
+                options={{
+                    tabBarLabel: 'Products',
+                    headerShown: true,
+                    headerTitle: 'Products',
                     headerStyle,
                     headerTitleStyle,
                 }}
