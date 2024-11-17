@@ -6,15 +6,15 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker'; 
 
-type RoleSelectionRouteProps = {
+type RegisterRouteProps = {
   email?: string;
   password?: string;
 };
 
-const RoleSelection = () => {
+const Register = () => {
   const route = useRoute();
-  const navigation = useNavigation();
-  const { email: initialEmail, password: initialPassword } = route.params as RoleSelectionRouteProps;
+  const navigation = useNavigation<any>()
+  const { email: initialEmail, password: initialPassword } = route.params as RegisterRouteProps;
 
   const [email, setEmail] = useState(initialEmail || '');
   const [password, setPassword] = useState(initialPassword || '');
@@ -46,8 +46,6 @@ const RoleSelection = () => {
       Alert.alert('Error', error.message);
     }
   };
-
-  
 
   return (
     <KeyboardAvoidingView
@@ -107,7 +105,7 @@ const RoleSelection = () => {
   );
 };
 
-export default RoleSelection;
+export default Register;
 
 const styles = StyleSheet.create({
   container: {
