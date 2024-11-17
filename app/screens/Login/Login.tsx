@@ -45,8 +45,9 @@ const Login = observer(() => {
       
     };
 
-    const goToSignUp = () => {
-      navigation.navigate('Register');
+    const goToSignUp = async (data: { email: string; password: string }) => {
+      console.log("data" + data.email + data.password);
+      navigation.navigate('Register',{initialEmail: data.email , initialPassword: data.password } );
     };
 
     return (
@@ -119,7 +120,7 @@ const Login = observer(() => {
             <Button mode="contained" onPress={handleSubmit(signIn)} style={styles.button}>
               Sign In
             </Button>
-            <Button mode="text" onPress={goToSignUp} style={styles.button}>
+            <Button mode="text" onPress={handleSubmit(goToSignUp)} style={styles.button}>
               Create Account
             </Button>
           </View>

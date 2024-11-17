@@ -4,7 +4,7 @@ import { RootStore } from ".";
 import { User } from "../types/FirebaseUser";
 import { UserCredential } from "firebase/auth";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 
 export default class UserStore {
   @observable user: User | null = null;
@@ -32,8 +32,8 @@ export default class UserStore {
   async setUser(uid: string) {
     if (uid) {
       try {
-        const db = getFirestore(); // Get Firestore instance
-        const userDocRef = doc(db, "Users", uid); // Reference to the user document
+        
+        const userDocRef = doc(FIREBASE_DB, "Users", uid); // Reference to the user document
         const userDoc = await getDoc(userDocRef); // Fetch the document
 
         if (userDoc.exists()) {

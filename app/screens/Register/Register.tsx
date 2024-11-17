@@ -6,21 +6,22 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker'; 
 
+
 type RegisterRouteProps = {
-  email?: string;
-  password?: string;
+  initialEmail?: string;
+  initialPassword?: string;
 };
 
 const Register = () => {
   const route = useRoute();
+  const { initialEmail, initialPassword } = route.params as RegisterRouteProps;
   const navigation = useNavigation<any>()
-  const { email: initialEmail, password: initialPassword } = route.params as RegisterRouteProps;
 
   const [email, setEmail] = useState(initialEmail || '');
   const [password, setPassword] = useState(initialPassword || '');
   const [pseudo, setPseudo] = useState('');
   const [role, setRole] = useState('');
-  const [isPickerVisible, setPickerVisible] = useState(false); // Contrôle de l'affichage du Picker
+  const [isPickerVisible, setPickerVisible] = useState(false); 
 
   const handleCreateAccount = async () => {
     if (!email || !password || !pseudo || !role) {
