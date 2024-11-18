@@ -18,15 +18,17 @@ export default class ApiStore {
     try {
       const productsCollectionRef = collection(FIREBASE_DB, "Products");
       const snapshot = await getDocs(productsCollectionRef);
-      const products: Product[] = snapshot.docs.map((doc) => ({
-        id: doc.id, // Include the document ID if needed
-        ...doc.data(), // Spread the document data
-      })) as Product[]; // Typecast to Product[] if the data structure matches your Product type
-      console.log(products);
+      const products: Product[] = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+        } as Product;
+      });
       return products;
     } catch (error) {
       console.error("Error fetching products:", error);
-      throw error;
+      throw new Error("Failed to fetch products");
     }
   }
 }

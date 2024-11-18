@@ -54,6 +54,7 @@ const TabNavigator = () =>
                 },
                 tabBarHideOnKeyboard: true
             })}
+            initialRouteName='Home'
         >
             <Tab.Screen 
                 name='Home' 

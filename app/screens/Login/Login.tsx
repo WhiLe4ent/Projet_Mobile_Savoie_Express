@@ -33,7 +33,7 @@ const Login = observer(() => {
         });
 
         if(response.user) {
-          navigation.navigate('Home');
+          navigation.navigate('TabScreens');
         }
       } catch (error: any) {
         console.error(error);

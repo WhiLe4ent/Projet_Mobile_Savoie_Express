@@ -17,5 +17,6 @@ export type Product = {
     status: ProductStatus;
     createdAt: Date;
     updatedAt?: Date;
-  };
+    photo: string;
+};
   

@@ -37,9 +37,6 @@ const Navigations = observer(() => {
             headerBackTitle: '',
           }}
         >
-          {!isLoggedIn ? (
-            // Auth screens for not logged-in users
-            <>
               <Stack.Screen
                 name="Login"
                 options={{ headerShown: false }}
@@ -50,19 +47,10 @@ const Navigations = observer(() => {
                 options={{ headerShown: false }}
                 component={Register}
               />
-            </>
-          ) : (
-            // Main screens for logged-in users
-            <>
                 <Stack.Screen
                     name="TabScreens"
                     options={{ headerShown: false }}
                     component={TabNavigator}
-                />
-                <Stack.Screen
-                    name="Home"
-                    options={{ headerShown: false }}
-                    component={Home}
                 />
                 <Stack.Screen
                     name="DeliveryScreens"
@@ -79,8 +67,6 @@ const Navigations = observer(() => {
                     component={Products}
                     options={{ headerShown: false }}
                 />
-            </>
-          )}
         </Stack.Navigator>
       </SheetProvider>
     </NavigationContainer>
