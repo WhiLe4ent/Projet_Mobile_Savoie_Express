@@ -47,26 +47,26 @@ const Navigations = observer(() => {
                 options={{ headerShown: false }}
                 component={Register}
               />
-                <Stack.Screen
-                    name="TabScreens"
-                    options={{ headerShown: false }}
-                    component={TabNavigator}
-                />
-                <Stack.Screen
-                    name="DeliveryScreens"
-                    component={DeliveryNavigator}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="RoleScreens"
-                    component={RoleNavigator}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Products"
-                    component={Products}
-                    options={{ headerShown: false }}
-                />
+              <Stack.Screen
+                  name="TabScreens"
+                  options={{ headerShown: false }}
+                  component={TabNavigator}
+              />
+              <Stack.Screen
+                  name="DeliveryScreens"
+                  component={DeliveryNavigator}
+                  options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                  name="RoleScreens"
+                  component={RoleNavigator}
+                  options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                  name="Products"
+                  component={Products}
+                  options={{ headerShown: false }}
+              />
         </Stack.Navigator>
       </SheetProvider>
     </NavigationContainer>
