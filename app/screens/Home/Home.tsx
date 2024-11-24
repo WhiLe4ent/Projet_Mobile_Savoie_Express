@@ -10,6 +10,10 @@ const Home = () => {
   const navigation = useNavigation<any>();
   const user: User | null = userStore.user;
 
+  const goToCreateDelivery = () => {
+    navigation.navigate('Deliveries', { screen: 'CreateDelivery' });
+  };
+  
   const signOut = async () => {
     try {
       await userStore.disconnect();
@@ -37,7 +41,7 @@ const Home = () => {
         <Button
           mode="contained"
           style={styles.button}
-          onPress={() => navigation.navigate('AddDelivery')}
+          onPress={goToCreateDelivery}
         >
           Ajouter une livraison
         </Button>

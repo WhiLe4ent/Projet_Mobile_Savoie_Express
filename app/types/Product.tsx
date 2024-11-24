@@ -7,7 +7,7 @@ export enum ProductStatus{
 
 export type Product = {
     id: string;
-    name: string;
+    model: string;
     reference: string;
     color: string;
     size: string; //cm

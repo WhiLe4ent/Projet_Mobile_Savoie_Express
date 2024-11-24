@@ -218,7 +218,7 @@ const Register = () => {
                   >
                     <Picker.Item label="Vendeur" value={Role.vendeur} />
                     <Picker.Item label="RCO" value={Role.rco} />
-                    <Picker.Item label="Financial Manager" value={Role.fiancialManahger} />
+                    <Picker.Item label="Financial Manager" value={Role.financialManager} />
                     <Picker.Item label="Secretariat" value={Role.secretariat} />
                     <Picker.Item label="Expert Produit" value={Role.expertProduit} />
                   </Picker>

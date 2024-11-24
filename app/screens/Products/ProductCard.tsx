@@ -44,17 +44,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 style={styles.name}
                 numberOfLines={1}
                 ellipsizeMode="tail"
-            >{product.name}</Text>
+            >{product.model}</Text>
             <Text style={styles.attribute}>Color: {product.color}</Text>
             <Text style={styles.attribute}>Current Site: {product.currentSite}</Text>
-            <Text style={styles.attribute}>Status: {product.status}</Text> 
-            <View  //todo: la mettre en ligne avec status
-            style={[
-              styles.statusIndicator,
-              { backgroundColor: getStatusColor() },
-            ]}
-          />
-          </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.attribute}>Status: {product.status}</Text>
+                <View
+                    style={[
+                    styles.statusIndicator,
+                    { backgroundColor: getStatusColor(),  marginLeft: 20 },
+                    ]}
+                />
+                </View>
+            </View>
 
         </View>
       );

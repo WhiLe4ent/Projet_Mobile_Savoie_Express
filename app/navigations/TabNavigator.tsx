@@ -5,6 +5,7 @@ import React from 'react';
 import Home from '../screens/Home/Home';
 import DeliveriesList from '../screens/Deliveries/DeliveriesList';
 import Products from '../screens/Products/Products';
+import DeliveryNavigator from './DeliveryNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -69,14 +70,8 @@ const TabNavigator = () =>
             />
             <Tab.Screen 
                 name='Deliveries' 
-                component={DeliveriesList} 
-                options={{
-                    tabBarLabel: 'Deliveries',
-                    headerShown: true,
-                    headerTitle: 'Deliveries',
-                    headerStyle,
-                    headerTitleStyle,
-                }}
+                component={DeliveryNavigator} 
+                options={{}}
             />
             <Tab.Screen 
                 name='Products' 

@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import DeliveriesList from '../screens/Deliveries/DeliveriesList';
 import CreateDelivery from '../screens/Deliveries/CreateDelivery';
 import DeliveryDetails from '../screens/Deliveries/DeliveryDetails';
-
+import theme from '../settings/Theme';
 
 const DeliveryStack = createStackNavigator();
 
@@ -12,7 +12,7 @@ const DeliveryNavigator = () => {
         <DeliveryStack.Navigator
             initialRouteName="DeliveriesList"
             screenOptions={{
-                headerStyle: { backgroundColor: 'transparent' },
+                headerStyle: { backgroundColor: '#006CFF' },
                 headerTitleStyle: { color: 'white' },
             }}
         >
@@ -20,7 +20,7 @@ const DeliveryNavigator = () => {
                 name="DeliveriesList"
                 component={DeliveriesList}
                 options={{
-                    title: 'All Deliveries',
+                    title: 'All Deliveries'                
                 }}
             />
             <DeliveryStack.Screen
