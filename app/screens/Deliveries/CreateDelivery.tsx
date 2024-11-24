@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, Button } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
+import { Dropdown } from 'react-native-element-dropdown';
+
+
 const CreateDelivery = ({ navigation }: { navigation: any }) => {
   const [step, setStep] = useState(1);
   const [delivery, setDelivery] = useState({
@@ -25,7 +28,7 @@ const CreateDelivery = ({ navigation }: { navigation: any }) => {
           ...delivery,
           createdAt: new Date().toISOString(),
         };
-  
+   
         const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
         await addDoc(deliveriesCollectionRef, newDelivery);
   
@@ -34,8 +37,13 @@ const CreateDelivery = ({ navigation }: { navigation: any }) => {
       } catch (error) {
         console.error("Error adding delivery:", error);
       }
-    }
+    } 
   };
+  
+  const deliveryTypes = [
+    { label: 'Type A', value: 'A' },
+    { label: 'Type B', value: 'B' },
+  ];
   
 
   return (
@@ -54,11 +62,18 @@ const CreateDelivery = ({ navigation }: { navigation: any }) => {
       ) : (
         <View>
           <Text style={styles.label}>Type :</Text>
-          <TextInput
-            style={styles.input}
+
+          <Dropdown
+            data={deliveryTypes}
+            labelField="label"
+            valueField="value"
+            placeholder="Sélectionnez un type"
             value={delivery.type}
-            onChangeText={(text) => setDelivery({ ...delivery, type: text })}
-            placeholder="Type de livraison (A ou B)"
+            onChange={(item) => setDelivery({ ...delivery, type: item.value })}
+            style={styles.input}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            containerStyle={styles.dropdownContainer}
           />
 
           <Text style={styles.label}>Modèle :</Text>
@@ -145,6 +160,17 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 16,
     borderRadius: 4,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#aaa',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: '#000',
+  },
+  dropdownContainer: {
+    borderRadius: 8,
   },
 });
 
