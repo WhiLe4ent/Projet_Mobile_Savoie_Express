@@ -1,194 +1,178 @@
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, Button, StyleSheet, Platform } from "react-native";
+import DateTimePicker, { DateTimePickerEvent} from "@react-native-community/datetimepicker";
+import { updateDoc, doc } from "firebase/firestore";
+import { FIREBASE_DB } from "../../../FirebaseConfig";
 
-import React from 'react';
-import { Text } from 'react-native-paper';
+const DeliveryDetails = ({ route }: { route: any }) => {
+  const { delivery } = route.params;
 
-const DeliveryDetails = () => {
+  // Initialiser l'état avec les données de livraison
+  const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [currentInput, setCurrentInput] = useState<string>("");
+  const [date, setDate] = useState(new Date(updatedDelivery.availability || new Date()));
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const steps = [
+    {
+      label: "Présence (OUI/NON)",
+      value: updatedDelivery.presence,
+      field: "presence",
+      placeholder: "Présence sur le site (OUI/NON)",
+      type: "text",
+    },
+    {
+      label: "Disponibilité",
+      value: updatedDelivery.availability,
+      field: "availability",
+      placeholder: "Choisir une date",
+      type: "date",
+    },
+    {
+      label: "Frais de préparation",
+      value: updatedDelivery.preparationFees,
+      field: "preparationFees",
+      placeholder: "Description des frais",
+      type: "text",
+    },
+    {
+      label: "Configuration du produit",
+      value: updatedDelivery.configuration,
+      field: "configuration",
+      placeholder: "Choisir configuration",
+      type: "text",
+    },
+    {
+      label: "Documentation",
+      value: updatedDelivery.documentation,
+      field: "documentation",
+      placeholder: "Présente ou Absente ?",
+      type: "text",
+    },
+  ];
+
+  // Vérifie les étapes déjà remplies au chargement
+  useEffect(() => {
+    const firstIncompleteStep = steps.findIndex((step) => !step.value);
+    setCurrentStep(firstIncompleteStep === -1 ? steps.length : firstIncompleteStep + 1);
+  }, [steps]);
+
+
+  const handleSave = async () => {
+    try {
+      const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
+      await updateDoc(docRef, updatedDelivery);
+      alert("Modifications enregistrées !");
+    } catch (error) {
+      console.error("Error saving delivery:", error);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string | Date) => {
+    setUpdatedDelivery({ ...updatedDelivery, [field]: value });
+    setCurrentInput(value as string); 
+  };
+
+  const onDateChange = (_: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      handleInputChange("availability", selectedDate.toISOString());
+    }
+  };
+
+  const renderStep = () => {
+    return steps.slice(0, currentStep).map((step, index) => {
+      if (step.type === "date") {
+        return (
+          <View key={index}>
+            <Text style={styles.label}>{step.label} :</Text>
+            <Text
+              style={styles.selectedDate}
+              onPress={() => setShowDatePicker(true)}
+            >
+              Date : {new Date(updatedDelivery[step.field]).toLocaleDateString()}
+            </Text>
+            {showDatePicker && (
+              <DateTimePicker
+                key={index}
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onDateChange}
+              />
+            )}
+          </View>
+        );
+      }
+
+      return (
+        <View key={index}>
+          <Text style={styles.label}>{step.label} :</Text>
+          <TextInput
+            style={styles.input}
+            value={updatedDelivery[step.field] || ""}
+            onChangeText={(text) => handleInputChange(step.field, text)}
+            placeholder={step.placeholder}
+          />
+        </View>
+      );
+    });
+  };
+
+  const canProceedToNextStep =
+    currentInput.trim() !== "" || steps[currentStep - 1]?.type === "date";
+
   return (
-    <Text>Delivery Details</Text>
+    <View style={styles.container}>
+      {renderStep()}
+      <View style={styles.buttonContainer}>
+        {currentStep < steps.length && (
+          <Button
+            title="Étape suivante"
+            onPress={() => {
+              setCurrentStep((prev) => prev + 1);
+              setCurrentInput(""); 
+            }}
+            disabled={!canProceedToNextStep}
+          />
+        )}
+        <Button title="Enregistrer les modifications" onPress={handleSave} />
+      </View>
+    </View>
   );
 };
 
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    marginBottom: 16,
+    borderRadius: 4,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  selectedDate: {
+    fontSize: 16,
+    color: "#007BFF",
+    marginTop: 8,
+    marginBottom: 16,
+  },
+});
+
 export default DeliveryDetails;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react';
-
-
-
-
-
-
-
-// import { View, StyleSheet } from 'react-native';
-// import { Text, TextInput, Button } from 'react-native-paper';
-// import { useRoute, useNavigation } from '@react-navigation/native';
-// import firestore from '@react-native-firebase/firestore';
-// import { useStores } from "../../stores";
-
-
-// type DeliveryDetailsRouteProps = {
-//   clientName?: string;
-//   deliveryType?: string;
-// };
-
-
-// const DeliveryDetails = () => {
-//   const route = useRoute();
-//   const navigation = useNavigation();
-//   const { clientName, deliveryType } = route.params as DeliveryDetailsRouteProps;
-
-//   const [model, setModel] = useState('');
-//   const [reference, setReference] = useState('');
-//   const [idNumber, setIdNumber] = useState('');
-//   const [color, setColor] = useState('');
-//   const [originSite, setOriginSite] = useState('');
-//   const [destinationSite, setDestinationSite] = useState('');
-//   const [misc, setMisc] = useState('');
-//   const [errorMessage, setErrorMessage] = useState('');
-
-//   const handleSubmit = async () => {
-//     if (!model || !reference || !idNumber || !originSite || !destinationSite) {
-//       setErrorMessage('Tous les champs obligatoires doivent être remplis.');
-//       return;
-//     }
-
-//     const deliveryData = {
-//       clientName,
-//       deliveryType,
-//       model,
-//       reference,
-//       idNumber,
-//       color,
-//       originSite,
-//       destinationSite,
-//       misc,
-//       createdAt: firestore.Timestamp.fromDate(new Date()),
-//       updatedAt: firestore.Timestamp.fromDate(new Date()),
-//     };
-
-//     try {
-//       await firestore().collection('deliveries').add(deliveryData);
-//       console.log('Livraison ajoutée avec succès.');
-//       const parentNavigation: any = navigation.getParent();
-//       parentNavigation.navigate('Home');
-//           } catch (error) {
-//       console.error('Erreur lors de l’ajout de la livraison :', error);
-//     }
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.header}>Livraison : {clientName}</Text>
-//       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-
-//       <TextInput
-//         label="Modèle"
-//         value={model}
-//         onChangeText={setModel}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Référence"
-//         value={reference}
-//         onChangeText={setReference}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Numéro ID"
-//         value={idNumber}
-//         onChangeText={setIdNumber}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Couleur"
-//         value={color}
-//         onChangeText={setColor}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Site présence physique"
-//         value={originSite}
-//         onChangeText={setOriginSite}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Site destination"
-//         value={destinationSite}
-//         onChangeText={setDestinationSite}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Divers"
-//         value={misc}
-//         onChangeText={setMisc}
-//         style={styles.input}
-//       />
-
-//       <Button mode="contained" onPress={handleSubmit} style={styles.button}>
-//         Enregistrer
-//       </Button>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 16,
-//     backgroundColor: '#fff',
-//   },
-//   header: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     marginBottom: 16,
-//   },
-//   input: {
-//     marginBottom: 16,
-//   },
-//   button: {
-//     marginTop: 16,
-//   },
-//   error: {
-//     color: 'red',
-//     marginBottom: 16,
-//   },
-// });
-
-// export default DeliveryDetails;
