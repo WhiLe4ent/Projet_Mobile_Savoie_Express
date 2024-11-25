@@ -3,7 +3,7 @@ import { View, StyleSheet, KeyboardAvoidingView, Alert, ScrollView, Platform, To
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { Picker } from '@react-native-picker/picker';
+import { Dropdown } from 'react-native-element-dropdown';
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -19,7 +19,13 @@ const Register = () => {
   const route = useRoute();
   const { initialEmail, initialPassword } = route.params as RegisterRouteProps;
   const navigation = useNavigation<any>();
-  const [isPickerVisible, setPickerVisible] = useState<boolean>(false);
+  const roles = [
+    { label: 'Vendeur', value: 'vendeur' },
+    { label: 'RCO', value: 'rco' },
+    { label: 'Financial Manager', value: 'financialManager' },
+    { label: 'Secretariat', value: 'secretariat' },
+    { label: 'Expert Produit', value: 'expertProduit' },
+  ];
 
   const { control, handleSubmit, formState: { errors }, watch } = useForm<RegisterForm>({
     defaultValues: {
@@ -190,44 +196,26 @@ const Register = () => {
         {errors.pseudo && <Text style={styles.errorText}>{errors.pseudo.message}</Text>}
 
         {/* Role Picker */}
-        <TouchableOpacity
-          onPress={() => setPickerVisible(!isPickerVisible)}
-          style={[styles.input, styles.pickerButton]}
-        >
-          <Text style={styles.textRolePicker}>
-            {formValues.role ? formValues.role : 'Open Role Picker'}
-          </Text>
-        </TouchableOpacity>
-        
-        {isPickerVisible && 
         <Controller
           control={control}
-          rules={{
-              required: true,
-          }}
-          render={({ field: { onBlur, onChange,value } }) => (
-              <View style={styles.pickerContainer}>
-                  <Picker
-                      onBlur={onBlur}
-                      style={styles.picker}
-                      selectedValue={value}
-                      onValueChange={(itemValue) => {
-                        onChange(itemValue);
-                        setPickerVisible(false);
-                      }}
-                  >
-                    <Picker.Item label="Vendeur" value={Role.vendeur} />
-                    <Picker.Item label="RCO" value={Role.rco} />
-                    <Picker.Item label="Financial Manager" value={Role.fiancialManahger} />
-                    <Picker.Item label="Secretariat" value={Role.secretariat} />
-                    <Picker.Item label="Expert Produit" value={Role.expertProduit} />
-                  </Picker>
-              </View>
+          name="role"
+          rules={{ required: 'Rôle requis' }}
+          render={({ field: { onChange, value } }) => (
+            <Dropdown
+              data={roles}
+              labelField="label"
+              valueField="value"
+              placeholder="Sélectionnez un rôle"
+              value={value}
+              onChange={(item) => onChange(item.value)}
+              style={[styles.input, styles.dropdown]}
+            />
           )}
-          name='role'
-        />} 
-
+        />
         {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
+
+      {/* Error Message */}
+      {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
         {/* Submit Button */}
         <View style={styles.buttonContainer}>
@@ -271,33 +259,24 @@ const styles = StyleSheet.create({
     elevation: 2,
     fontSize: 16,
   },
-  pickerButton: {
-    marginVertical: 10,
+  dropdown: {
     height: 50,
-    borderRadius: 10,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    paddingHorizontal: 12,
-  },
-  picker: {
-    height:150,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
     backgroundColor: '#fff',
   },
-  pickerContainer:{
-    width: '95%',
-    overflow: 'hidden',
-    borderRadius: 30,
-    marginBottom: 25,     
-    alignSelf: 'center',     
-    elevation: 5,
-    shadowColor: '#000',//ios
-    shadowOffset: { width: 0, height: 5 },//ios
-    shadowOpacity: 0.5,//ios
-    shadowRadius: 5,//ios
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#aaa',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: '#000',
+  },
+  dropdownContainer: {
+    borderRadius: 8,
   },
   submitButtonText: {
     fontSize: 18,

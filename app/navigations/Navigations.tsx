@@ -52,10 +52,10 @@ const Navigations = observer(() => {
                   options={{ headerShown: false }}
                   component={TabNavigator}
               />
-              <Stack.Screen
-                  name="DeliveryScreens"
-                  component={DeliveryNavigator}
-                  options={{ headerShown: false }}
+              <Stack.Screen 
+                name="Deliveries" 
+                component={DeliveryNavigator} 
+                options={{headerShown: false}}
               />
               <Stack.Screen
                   name="RoleScreens"
