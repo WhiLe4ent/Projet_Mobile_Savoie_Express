@@ -7,7 +7,6 @@ import ProductCard from "./ProductCard";
 import theme from "../../settings/Theme";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
-import ProductDetails from "./ProductDetails";
 
 const Products = () => {
   const { apiStore } = useStores();
@@ -55,8 +54,6 @@ const Products = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Products</Text>
-
       <Searchbar
         placeholder="Search"
         onChangeText={setSearchQuery}
@@ -65,20 +62,20 @@ const Products = () => {
       />
 
       {loading ? (
-        <ActivityIndicator 
-          size="large" 
-          color={theme.colors.primary} 
-          style={styles.loadingIndicator} 
-        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={styles.loadingText}>Fetching Products...</Text>
+        </View>
       ) : (
         <ScrollView>
-        {filteredProducts.map(product => (
-          <TouchableOpacity key={product.id} onPress={() => handleProductClick(product.id)}>
-            <ProductCard product={product} />
-          </TouchableOpacity>
-        ))}
+          {filteredProducts.map(product => (
+            <TouchableOpacity key={product.id} onPress={() => handleProductClick(product.id)}>
+              <ProductCard product={product} />
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       )}
+
     </View>
   );
 };
@@ -87,18 +84,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+    backgroundColor: "#f0f4f7",
   },
   searchbar: {
     marginBottom: 16,
+    borderRadius: 25,
+    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  loadingIndicator: {
-    marginTop: 32,
-    alignSelf: "center",
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#888",
   },
 });
 

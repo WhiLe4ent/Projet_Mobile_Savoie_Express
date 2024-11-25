@@ -62,17 +62,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
           {product.destinationSite && (
             <Text style={styles.productInfo}>Destination Site: {product.destinationSite}</Text>
           )}
-          <View style={styles.statusContainer}>
-              <Text style={styles.productInfo}>Status: {product.status}</Text>
-                <View
-                    style={[
-                    styles.statusIndicator,
-                    { backgroundColor: getStatusColor(product.status), width: 10, height: 10, borderRadius: 5 },
-                    ]}
-                />
-                </View>
-            </View>
+          <Text 
+            style={[styles.badge, 
+                { backgroundColor: 
+                    getStatusColor(product.status) 
+                }]} 
+          >           
+            {product.status}
+          </Text>
         </View>
+      </View>
 
         <View style={styles.buttonContainer}>
           <Button 
@@ -98,39 +97,52 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f9f9f9',
   },
   loaderText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#555',
+    marginTop: 12,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 20,
+    borderRadius: 8,
   },
   errorText: {
     fontSize: 16,
-    color: 'red',
-  },
+    fontWeight: 'bold',
+    color: '#d32f2f',
+    textAlign: 'center',
+  },  
   card: {
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 5,
-    padding: 16,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    padding: 20,
     width: '100%',
     maxWidth: 400,
-  },
+    marginVertical: 20,
+  },  
   productImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 10,
+    height: 220,
     marginBottom: 16,
+    backgroundColor: '#f5f5f5',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
+  
   productTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -149,17 +161,6 @@ const styles = StyleSheet.create({
   status: {
     fontWeight: 'bold',
   },
-  statusIndicator: {
-    right: 10,
-    width: 10,
-    height: 10,
-    borderRadius: 7.5,
-  },
-  statusContainer: {
-      flexDirection: "row", 
-      alignItems: "center", 
-      justifyContent: "space-between"
-  },
   buttonContainer: {
     marginTop: 100,
     alignItems: 'center',
@@ -168,6 +169,22 @@ const styles = StyleSheet.create({
   button: {
     marginBottom: 8,
     width: '80%',
+  },
+  badge: {
+    alignSelf: 'flex-end',
+    marginTop: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    textTransform: 'uppercase',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
 });
 
