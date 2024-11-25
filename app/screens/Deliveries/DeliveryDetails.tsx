@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Platform } from "react-native";
+import DateTimePicker, { DateTimePickerEvent} from "@react-native-community/datetimepicker";
 import { updateDoc, doc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
-  const [currentStep, setCurrentStep] = useState(1);
+
+  // Initialiser l'état avec les données de livraison
   const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
+  const [currentStep, setCurrentStep] = useState(1);
   const [currentInput, setCurrentInput] = useState<string>("");
+  const [date, setDate] = useState(new Date(updatedDelivery.availability || new Date()));
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const steps = [
     {
@@ -15,20 +20,36 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       value: updatedDelivery.presence,
       field: "presence",
       placeholder: "Présence sur le site (OUI/NON)",
+      type: "text",
     },
     {
       label: "Disponibilité",
       value: updatedDelivery.availability,
       field: "availability",
-      placeholder: "Disponibilité (Immédiate ou date)",
+      placeholder: "Choisir une date",
+      type: "date",
     },
     {
       label: "Frais de préparation",
       value: updatedDelivery.preparationFees,
       field: "preparationFees",
       placeholder: "Description des frais",
+      type: "text",
     },
-    // Ajoute d'autres étapes ici si nécessaire
+    {
+      label: "Configuration du produit",
+      value: updatedDelivery.configuration,
+      field: "configuration",
+      placeholder: "Choisir configuration",
+      type: "text",
+    },
+    {
+      label: "Documentation",
+      value: updatedDelivery.documentation,
+      field: "documentation",
+      placeholder: "Présente ou Absente ?",
+      type: "text",
+    },
   ];
 
   // Vérifie les étapes déjà remplies au chargement
@@ -36,6 +57,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     const firstIncompleteStep = steps.findIndex((step) => !step.value);
     setCurrentStep(firstIncompleteStep === -1 ? steps.length : firstIncompleteStep + 1);
   }, [steps]);
+
 
   const handleSave = async () => {
     try {
@@ -47,44 +69,81 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | Date) => {
     setUpdatedDelivery({ ...updatedDelivery, [field]: value });
-    setCurrentInput(value); // Met à jour l'état de l'input actuel
+    setCurrentInput(value as string); 
+  };
+
+  const onDateChange = (_: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      handleInputChange("availability", selectedDate.toISOString());
+    }
   };
 
   const renderStep = () => {
-    return steps.slice(0, currentStep).map((step, index) => (
-      <View key={index}>
-        <Text style={styles.label}>{step.label} :</Text>
-        <TextInput
-          style={styles.input}
-          value={updatedDelivery[step.field] || ""}
-          onChangeText={(text) => handleInputChange(step.field, text)}
-          placeholder={step.placeholder}
-        />
-      </View>
-    ));
+    return steps.slice(0, currentStep).map((step, index) => {
+      if (step.type === "date") {
+        return (
+          <View key={index}>
+            <Text style={styles.label}>{step.label} :</Text>
+            <Text
+              style={styles.selectedDate}
+              onPress={() => setShowDatePicker(true)}
+            >
+              Date : {new Date(updatedDelivery[step.field]).toLocaleDateString()}
+            </Text>
+            {showDatePicker && (
+              <DateTimePicker
+                key={index}
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onDateChange}
+              />
+            )}
+          </View>
+        );
+      }
+
+      return (
+        <View key={index}>
+          <Text style={styles.label}>{step.label} :</Text>
+          <TextInput
+            style={styles.input}
+            value={updatedDelivery[step.field] || ""}
+            onChangeText={(text) => handleInputChange(step.field, text)}
+            placeholder={step.placeholder}
+          />
+        </View>
+      );
+    });
   };
 
-  const canProceedToNextStep = currentInput.trim() !== ""; 
+  const canProceedToNextStep =
+    currentInput.trim() !== "" || steps[currentStep - 1]?.type === "date";
 
   return (
     <View style={styles.container}>
       {renderStep()}
       <View style={styles.buttonContainer}>
-        <Button
-          title="Étape suivante"
-          onPress={() => {
-            setCurrentStep((prev) => prev + 1);
-            setCurrentInput(""); // Réinitialise l'input pour l'étape suivante
-          }}
-          disabled={!canProceedToNextStep || currentStep >= steps.length} 
-        />
+        {currentStep < steps.length && (
+          <Button
+            title="Étape suivante"
+            onPress={() => {
+              setCurrentStep((prev) => prev + 1);
+              setCurrentInput(""); 
+            }}
+            disabled={!canProceedToNextStep}
+          />
+        )}
         <Button title="Enregistrer les modifications" onPress={handleSave} />
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -107,6 +166,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  selectedDate: {
+    fontSize: 16,
+    color: "#007BFF",
+    marginTop: 8,
+    marginBottom: 16,
   },
 });
 
