@@ -30,10 +30,11 @@ const CreateDelivery = ({ navigation }: { navigation: any }) => {
         };
    
         const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
-        await addDoc(deliveriesCollectionRef, newDelivery);
+        const docRef = await addDoc(deliveriesCollectionRef, newDelivery);
   
         // Rediriger vers la liste des livraisons
         navigation.navigate("DeliveriesList");
+
       } catch (error) {
         console.error("Error adding delivery:", error);
       }

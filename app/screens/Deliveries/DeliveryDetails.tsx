@@ -1,194 +1,113 @@
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { updateDoc, doc } from "firebase/firestore";
+import { FIREBASE_DB } from "../../../FirebaseConfig";
 
-import React from 'react';
-import { Text } from 'react-native-paper';
+const DeliveryDetails = ({ route }: { route: any }) => {
+  const { delivery } = route.params;
+  const [currentStep, setCurrentStep] = useState(1);
+  const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
+  const [currentInput, setCurrentInput] = useState<string>("");
 
-const DeliveryDetails = () => {
+  const steps = [
+    {
+      label: "Présence (OUI/NON)",
+      value: updatedDelivery.presence,
+      field: "presence",
+      placeholder: "Présence sur le site (OUI/NON)",
+    },
+    {
+      label: "Disponibilité",
+      value: updatedDelivery.availability,
+      field: "availability",
+      placeholder: "Disponibilité (Immédiate ou date)",
+    },
+    {
+      label: "Frais de préparation",
+      value: updatedDelivery.preparationFees,
+      field: "preparationFees",
+      placeholder: "Description des frais",
+    },
+    // Ajoute d'autres étapes ici si nécessaire
+  ];
+
+  // Vérifie les étapes déjà remplies au chargement
+  useEffect(() => {
+    const firstIncompleteStep = steps.findIndex((step) => !step.value);
+    setCurrentStep(firstIncompleteStep === -1 ? steps.length : firstIncompleteStep + 1);
+  }, [steps]);
+
+  const handleSave = async () => {
+    try {
+      const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
+      await updateDoc(docRef, updatedDelivery);
+      alert("Modifications enregistrées !");
+    } catch (error) {
+      console.error("Error saving delivery:", error);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setUpdatedDelivery({ ...updatedDelivery, [field]: value });
+    setCurrentInput(value); // Met à jour l'état de l'input actuel
+  };
+
+  const renderStep = () => {
+    return steps.slice(0, currentStep).map((step, index) => (
+      <View key={index}>
+        <Text style={styles.label}>{step.label} :</Text>
+        <TextInput
+          style={styles.input}
+          value={updatedDelivery[step.field] || ""}
+          onChangeText={(text) => handleInputChange(step.field, text)}
+          placeholder={step.placeholder}
+        />
+      </View>
+    ));
+  };
+
+  const canProceedToNextStep = currentInput.trim() !== ""; 
+
   return (
-    <Text>Delivery Details</Text>
+    <View style={styles.container}>
+      {renderStep()}
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Étape suivante"
+          onPress={() => {
+            setCurrentStep((prev) => prev + 1);
+            setCurrentInput(""); // Réinitialise l'input pour l'étape suivante
+          }}
+          disabled={!canProceedToNextStep || currentStep >= steps.length} 
+        />
+        <Button title="Enregistrer les modifications" onPress={handleSave} />
+      </View>
+    </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    marginBottom: 16,
+    borderRadius: 4,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+});
+
 export default DeliveryDetails;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react';
-
-
-
-
-
-
-
-// import { View, StyleSheet } from 'react-native';
-// import { Text, TextInput, Button } from 'react-native-paper';
-// import { useRoute, useNavigation } from '@react-navigation/native';
-// import firestore from '@react-native-firebase/firestore';
-// import { useStores } from "../../stores";
-
-
-// type DeliveryDetailsRouteProps = {
-//   clientName?: string;
-//   deliveryType?: string;
-// };
-
-
-// const DeliveryDetails = () => {
-//   const route = useRoute();
-//   const navigation = useNavigation();
-//   const { clientName, deliveryType } = route.params as DeliveryDetailsRouteProps;
-
-//   const [model, setModel] = useState('');
-//   const [reference, setReference] = useState('');
-//   const [idNumber, setIdNumber] = useState('');
-//   const [color, setColor] = useState('');
-//   const [originSite, setOriginSite] = useState('');
-//   const [destinationSite, setDestinationSite] = useState('');
-//   const [misc, setMisc] = useState('');
-//   const [errorMessage, setErrorMessage] = useState('');
-
-//   const handleSubmit = async () => {
-//     if (!model || !reference || !idNumber || !originSite || !destinationSite) {
-//       setErrorMessage('Tous les champs obligatoires doivent être remplis.');
-//       return;
-//     }
-
-//     const deliveryData = {
-//       clientName,
-//       deliveryType,
-//       model,
-//       reference,
-//       idNumber,
-//       color,
-//       originSite,
-//       destinationSite,
-//       misc,
-//       createdAt: firestore.Timestamp.fromDate(new Date()),
-//       updatedAt: firestore.Timestamp.fromDate(new Date()),
-//     };
-
-//     try {
-//       await firestore().collection('deliveries').add(deliveryData);
-//       console.log('Livraison ajoutée avec succès.');
-//       const parentNavigation: any = navigation.getParent();
-//       parentNavigation.navigate('Home');
-//           } catch (error) {
-//       console.error('Erreur lors de l’ajout de la livraison :', error);
-//     }
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.header}>Livraison : {clientName}</Text>
-//       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-
-//       <TextInput
-//         label="Modèle"
-//         value={model}
-//         onChangeText={setModel}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Référence"
-//         value={reference}
-//         onChangeText={setReference}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Numéro ID"
-//         value={idNumber}
-//         onChangeText={setIdNumber}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Couleur"
-//         value={color}
-//         onChangeText={setColor}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Site présence physique"
-//         value={originSite}
-//         onChangeText={setOriginSite}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Site destination"
-//         value={destinationSite}
-//         onChangeText={setDestinationSite}
-//         style={styles.input}
-//       />
-//       <TextInput
-//         label="Divers"
-//         value={misc}
-//         onChangeText={setMisc}
-//         style={styles.input}
-//       />
-
-//       <Button mode="contained" onPress={handleSubmit} style={styles.button}>
-//         Enregistrer
-//       </Button>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 16,
-//     backgroundColor: '#fff',
-//   },
-//   header: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     marginBottom: 16,
-//   },
-//   input: {
-//     marginBottom: 16,
-//   },
-//   button: {
-//     marginTop: 16,
-//   },
-//   error: {
-//     color: 'red',
-//     marginBottom: 16,
-//   },
-// });
-
-// export default DeliveryDetails;

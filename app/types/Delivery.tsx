@@ -19,20 +19,16 @@ export type Delivery = {
     destinationSite: string; // Site destination
     notes: string; // Divers (nombre d'exemplaires ou autres commentaires)
     createdAt: Date;
-};
+    
+    // Workflow-specific fields
+    status: string; // Étape actuelle du workflow (e.g., "Etape 3", "Etape 4", ...)
+    presence: string; // "OUI" ou "NON" pour indiquer la présence sur le site
+    availability: string; // Disponibilité : "Immédiate" ou une date précise
+    preparationFees: string; // "NON" ou description si "OUI"
+    productConfiguration: string[]; // Liste des labels cochés (e.g., ["assemblé", "protégé"])
+    documentation: string; // "Présente" ou "Absente"
+    alerts: string[]; // Liste des alertes envoyées (e.g., ["Produit introuvable"])
+    assignedRCO: string; // Email du RCO actuellement responsable
+  };
   
-
-// export type Delivery = {
-//     id: string; 
-//     title: string;
-//     clientName: string;
-//     productId: string;
-//     originSite: string; 
-//     destinationSite: string;
-//     status: DeliveryStatus;
-//     // steps: WorkflowStep[];
-//     createdBy: string;
-//     createdAt: Date;
-//     updatedAt?: Date;
-//   };
   
