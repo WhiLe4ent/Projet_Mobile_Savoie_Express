@@ -28,7 +28,7 @@ const TabNavigator = () =>
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarActiveTintColor: theme.colors.onPrimary,
+                tabBarActiveTintColor: theme.colors.primary,
                 tabBarIcon: () => 
                 {
                     let iconName = '';

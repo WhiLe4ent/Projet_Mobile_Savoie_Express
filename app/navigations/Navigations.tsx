@@ -7,12 +7,15 @@ import { useStores } from '../stores';
 import TabNavigator from './TabNavigator';
 import Login from '../screens/Login/Login';
 import Register from '../screens/Register/Register';
-import Home from '../screens/Home/Home';
 import DeliveryNavigator from './DeliveryNavigator';
 import RoleNavigator from './RoleNavigator';
 import Products from '../screens/Products/Products';
+import ProductDetails from '../screens/Products/ProductDetails';
+import { RootStackParamList } from './RootStackParamList';
+import theme from '../settings/Theme';
+import { white } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 
 const Navigations = observer(() => {
   const { userStore } = useStores(); // Access the user store
@@ -32,9 +35,10 @@ const Navigations = observer(() => {
         <Stack.Navigator
           initialRouteName={isLoggedIn ? 'TabScreens' : 'Login'} // Navigate based on login state
           screenOptions={{
-            headerStyle,
+            headerStyle: {backgroundColor: theme.colors.primary},
             headerTitleStyle,
             headerBackTitle: '',
+            headerTintColor: '#FFFFFF'
           }}
         >
               <Stack.Screen
@@ -66,6 +70,11 @@ const Navigations = observer(() => {
                   name="Products"
                   component={Products}
                   options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="ProductDetails"
+                component={ProductDetails}
+                options={{ title: 'Product Details' }}
               />
         </Stack.Navigator>
       </SheetProvider>

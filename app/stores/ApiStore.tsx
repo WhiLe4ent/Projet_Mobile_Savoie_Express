@@ -2,7 +2,7 @@ import { action, makeObservable } from "mobx";
 import { RootStore } from ".";
 import { FIREBASE_DB } from "../../FirebaseConfig";
 import { Product } from "../types/Product";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { Delivery } from "../types/Delivery";
 
 
@@ -30,6 +30,21 @@ export default class ApiStore {
     } catch (error) {
       console.error("Error fetching products:", error);
       throw new Error("Failed to fetch products");
+    }
+  }
+
+  @action 
+  public getProductById = async (productId: string)=> {
+    try {
+      const productRef = doc(FIREBASE_DB, 'Products', productId);
+      const productSnapshot = await getDoc(productRef);
+  
+      if (productSnapshot.exists()) {
+        return productSnapshot.data() as Product;
+      } 
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      throw error;
     }
   }
 
