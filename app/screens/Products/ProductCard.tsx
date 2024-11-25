@@ -1,36 +1,13 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
-import { Product, ProductStatus } from "../../types/Product";
+import { View, Image, StyleSheet } from "react-native";
+import { getStatusColor, Product, ProductStatus } from "../../types/Product";
+import { Text } from "react-native-paper";
 
 type ProductCardProps = {
   product: Product;
 };
 
-
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-
-    const getStatusColor = () => {
-        let res : string = ''
-
-        switch (product.status) {
-            case ProductStatus.available:
-                res = '#17f213'
-                break
-            case ProductStatus.inTransit:
-                res = '#1353f2';
-                break;
-            case ProductStatus.reserved:
-                res = '#696969';
-                break;
-            case ProductStatus.unavailable:
-                res = '#e00000';
-                break;
-            default:
-                res = '#17f213'
-        }
-
-        return res;
-    }
 
     return (
         <View style={styles.card}>
@@ -45,19 +22,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 numberOfLines={1}
                 ellipsizeMode="tail"
             >{product.model}</Text>
-            <Text style={styles.attribute}>Color: {product.color}</Text>
-            <Text style={styles.attribute}>Current Site: {product.currentSite}</Text>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.attribute}>
+                Color: {product.color}
+            </Text>
+            <Text style={styles.attribute}>
+                Current Site: {product.currentSite}
+            </Text>
+            <View style={styles.statusContainer}>
                 <Text style={styles.attribute}>Status: {product.status}</Text>
                 <View
                     style={[
                     styles.statusIndicator,
-                    { backgroundColor: getStatusColor(),  marginLeft: 20 },
+                    { backgroundColor: getStatusColor(product.status), width: 10, height: 10, borderRadius: 5 },
                     ]}
                 />
                 </View>
             </View>
-
         </View>
       );
     };
@@ -78,7 +58,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     image: {
-        width: 120,
+        width: 100,
         marginRight: 16,
     },
     details: {
@@ -86,12 +66,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     name: {
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: "bold",
         marginBottom: 5,
     },
     attribute: {
-        fontSize: 14,
+        fontSize: 13,
         color: "#555",
     },
     statusIndicator: {
@@ -100,6 +80,11 @@ const styles = StyleSheet.create({
         height: 10,
         borderRadius: 7.5,
     },
+    statusContainer: {
+        flexDirection: "row", 
+        alignItems: "center", 
+        justifyContent: "space-between"
+    }
 });
 
 export default ProductCard;

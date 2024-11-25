@@ -20,3 +20,25 @@ export type Product = {
     photo: string;
 };
   
+export const getStatusColor = (status: string) => {
+    let res : string = ''
+
+    switch (status) {
+        case ProductStatus.available:
+            res = '#17f213'
+            break
+        case ProductStatus.inTransit:
+            res = '#1353f2';
+            break;
+        case ProductStatus.reserved:
+            res = '#696969';
+            break;
+        case ProductStatus.unavailable:
+            res = '#e00000';
+            break;
+        default:
+            res = '#17f213'
+    }
+
+    return res;
+}
