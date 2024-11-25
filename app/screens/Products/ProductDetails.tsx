@@ -2,11 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { getStatusColor, Product } from '../../types/Product';
 import { useStores } from '../../stores';
-import { RootStackParamList } from '../../navigations/RootStackParamList';
-import { StackScreenProps } from '@react-navigation/stack';
 import { Button, useTheme } from 'react-native-paper';
+import { useNavigation } from "@react-navigation/native";
+import { StackScreenProps } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "CreateDelivery">;
 type ProductDetailsProps = StackScreenProps<RootStackParamList, 'ProductDetails'>;
+
+export type RootStackParamList = {
+  ProductDetails: { productId: string };
+  Deliveries: { screen: "CreateDelivery" };
+  CreateDelivery: undefined;
+};
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const { apiStore } = useStores();
@@ -14,6 +22,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const theme = useTheme();
   const [product, setProduct] = useState<Product>();
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation<NavigationProp>(); // Navigation typée
+
+  const handlePress = () => {
+    // Naviguer vers l'écran des détails avec l'objet delivery
+    navigation.navigate("Deliveries", { screen: "CreateDelivery" });
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -78,7 +92,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
             mode="contained" 
             style={styles.button} 
             icon="cart"
-            onPress={() => console.log('Order button pressed')}
+            onPress={handlePress}
           >
             Order now
           </Button>
