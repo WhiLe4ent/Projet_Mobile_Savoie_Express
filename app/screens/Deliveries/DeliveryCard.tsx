@@ -33,7 +33,13 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
         </Text>
         <Text style={styles.attribute}>Model: {delivery.model}</Text>
         <Text style={styles.attribute}>Description: {delivery.notes}</Text>
-        <Text style={styles.attribute}>Date: {new Date(delivery.createdAt).toLocaleDateString()}</Text>
+        <Text style={styles.attribute}>
+          Date: {new Date(delivery.availability).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </Text>
       </View>
     </TouchableOpacity>
   );

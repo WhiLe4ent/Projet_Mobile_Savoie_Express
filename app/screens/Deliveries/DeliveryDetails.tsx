@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Platform,
   Switch,
@@ -14,6 +14,7 @@ import DateTimePicker, {
 import { updateDoc, doc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Steps } from "../../types/Delivery";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
@@ -55,6 +56,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [date, setDate] = useState(new Date(delivery.availability || Date.now()));
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const navigation = useNavigation<any>();
 
   const maxSteps = stepsArray.length;
 
@@ -70,7 +72,12 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
       alert("Modifications enregistrées !");
-    } catch (error) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "DeliveriesList" }],
+        })
+      );    } catch (error) {
       console.error("Error saving delivery:", error);
     }
   };
@@ -79,13 +86,17 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     setUpdatedDelivery((prev: any) => ({ ...prev, [field]: value }));
   };
 
-  const onDateChange = (_: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowDatePicker(false);
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+    
     if (selectedDate) {
-      setDate(selectedDate);
+      setDate(selectedDate)
       handleInputChange(Steps.Availability, selectedDate.toISOString());
     }
   };
+  
 
   const renderStep = () => {
     const step = stepsArray[currentStep];
@@ -95,20 +106,23 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         {step.type === "date" ? (
           <>
             <Text style={styles.label}>{step.label}:</Text>
-            <Text
-              style={styles.selectedDate}
+            <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
+              style={styles.dateButton}
             >
-              {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
-            </Text>
+              <Text style={styles.dateText}>
+                {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
             {showDatePicker && (
               <DateTimePicker
                 value={date}
                 mode="date"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onDateChange}
+                onChange={onDateChange} // Use the updated `onDateChange`
               />
             )}
+
           </>
         ) : step.type === "boolean" ? (
           <>
@@ -151,13 +165,17 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       {renderStep()}
       <View style={styles.buttonContainer}>
         {currentStep < maxSteps - 1 && (
-          <Button
-            title="Étape suivante"
+          <TouchableOpacity
+            style={styles.nextButton}
             onPress={() => setCurrentStep((prev) => prev + 1)}
             disabled={!updatedDelivery[stepsArray[currentStep].field]}
-          />
+          >
+            <Text style={styles.buttonText}>Étape suivante</Text>
+          </TouchableOpacity>
         )}
-        <Button title="Enregistrer les modifications" onPress={handleSave} />
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.buttonText}>Enregistrer les modifications</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -167,41 +185,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#f9f9f9",
   },
   progressBarContainer: {
-    height: 10,
-    backgroundColor: "#ccc",
-    borderRadius: 5,
-    overflow: "hidden",
+    height: 8,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 4,
     marginBottom: 16,
   },
   progressBar: {
     height: "100%",
-    backgroundColor: "#007BFF",
+    backgroundColor: "#4caf50",
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 10,
+    color: "#333",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
+    borderColor: "#ddd",
+    padding: 10,
     marginBottom: 16,
     borderRadius: 4,
+    backgroundColor: "#fff",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 16,
   },
-  selectedDate: {
+  nextButton: {
+    backgroundColor: "#007BFF",
+    padding: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    flex: 1,
+    marginRight: 8,
+  },
+  saveButton: {
+    backgroundColor: "#28a745",
+    padding: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    flex: 1,
+    marginLeft: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dateButton: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 4,
+    backgroundColor: "#fff",
+  },
+  dateText: {
     fontSize: 16,
     color: "#007BFF",
-    marginTop: 8,
-    marginBottom: 16,
   },
   toggleContainer: {
     flexDirection: "row",
@@ -211,6 +256,7 @@ const styles = StyleSheet.create({
   toggleText: {
     marginLeft: 8,
     fontSize: 16,
+    color: "#333",
   },
 });
 
