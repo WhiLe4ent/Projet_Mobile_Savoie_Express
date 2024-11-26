@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   Platform,
   Switch,
 } from "react-native";
+import { Text, Button } from 'react-native-paper';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -77,7 +77,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           index: 0,
           routes: [{ name: "DeliveriesList" }],
         })
-      );    } catch (error) {
+      );    
+    } catch (error) {
       console.error("Error saving delivery:", error);
     }
   };
@@ -164,18 +165,24 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       </View>
       {renderStep()}
       <View style={styles.buttonContainer}>
-        {currentStep < maxSteps - 1 && (
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={() => setCurrentStep((prev) => prev + 1)}
-            disabled={!updatedDelivery[stepsArray[currentStep].field]}
-          >
-            <Text style={styles.buttonText}>Étape suivante</Text>
-          </TouchableOpacity>
+
+        {currentStep != 1 && (
+            <Button 
+              mode="text" 
+              disabled={!updatedDelivery[stepsArray[currentStep].field]} 
+              onPress={() => setCurrentStep((prev) => prev - 1)}>
+                Étape précedente
+            </Button>
         )}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.buttonText}>Enregistrer les modifications</Text>
-        </TouchableOpacity>
+        {        /**encore a modifier */
+        }
+            <Button 
+              mode="contained"
+              disabled={!updatedDelivery[stepsArray[currentStep].field]} 
+              onPress={() => setCurrentStep((prev) => prev + 1)}>
+                Étape suivante
+            </Button>
+
       </View>
     </View>
   );

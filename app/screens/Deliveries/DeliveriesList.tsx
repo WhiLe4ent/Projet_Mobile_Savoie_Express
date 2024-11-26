@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Text, ScrollView, View, StyleSheet } from "react-native";
+import { Text } from 'react-native-paper';
+import { ScrollView, View, StyleSheet } from "react-native";
 import { useStores } from "../../stores";
 import { Delivery } from "../../types/Delivery";
 import { Searchbar } from "react-native-paper";
@@ -39,7 +40,9 @@ const DeliveriesList = () => {
         style={styles.searchbar}
       />
 
-      <ScrollView>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+      >
         {filteredDeliveries.map((delivery) => (
           <DeliveryCard key={delivery.id} delivery={delivery} />
         ))}
