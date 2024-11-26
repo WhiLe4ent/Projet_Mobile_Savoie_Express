@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, TextInput } from "react-native";
+import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Dropdown } from "react-native-element-dropdown";
@@ -7,7 +7,7 @@ import { Button, Text } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import { CommonActions, RouteProp } from "@react-navigation/native";
 import { useStores } from "../../stores";
-import { Product } from "../../types/Product";
+import { Product, ProductStatus } from "../../types/Product";
 import { RootStackParamList } from "../../navigations/RootStackParamList";
 
 
@@ -18,7 +18,21 @@ interface CreateDeliveryProps {
 }
 
 const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
-  const { product } = route.params; 
+  const defaultProduct: Product = {
+    id: "",
+    model: "",
+    reference: "",
+    color: "",
+    size: "",
+    quantity: 0,
+    currentSite: "",
+    destinationSite: "",
+    status: ProductStatus.available,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    photo: "",
+  };
+  const product = route.params?.product || defaultProduct; 
   console.log("create delivery : " + JSON.stringify(product))
 
   const { apiStore } = useStores();
@@ -28,12 +42,12 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
   const [delivery, setDelivery] = useState({
     title: "", 
     type: "",
-    model: product?.model || "",
-    reference: product?.reference || "",
-    numberId: product?.size || "",
-    color: product?.color || "",
-    physicalSite: product?.currentSite || "",
-    destinationSite: product?.destinationSite || "",
+    model: product?.model ,
+    reference: product?.reference ,
+    numberId: product?.size ,
+    color: product?.color ,
+    physicalSite: product?.currentSite ,
+    destinationSite: product?.destinationSite ,
     notes: "",
   });
 
@@ -62,23 +76,7 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
     fetchProducts();
   }, [apiStore]);
 
-  // Mettre à jour les données de livraison quand le produit change
-  useEffect(() => {
-    if (product) {
-      setDelivery({
-        title: "", 
-        type: "", 
-        model: product.model,
-        reference: product.reference,
-        numberId: product.size,
-        color: product.color,
-        physicalSite: product.currentSite,
-        destinationSite: product.destinationSite,
-        notes: "", 
-      });
-    }
-  }, [product]); // Ce useEffect se déclenche chaque fois que `product` change
-  
+
   const isNotEmpty = (value: string | undefined): boolean => {
     return value !== undefined && value.replace(/\s+/g, "").length > 0;
   };
@@ -160,7 +158,17 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView
+    style={styles.container}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={100}
+
+  >
+    <ScrollView 
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+
+    >
       <View style={styles.container}>
         {step === 1 ? (
           <View>
@@ -226,6 +234,7 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
         )}
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
