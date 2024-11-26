@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   TextInput,
@@ -6,8 +6,10 @@ import {
   StyleSheet,
   Platform,
   Switch,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
-import { Text, Button } from 'react-native-paper';
+import { Text, Button } from "react-native-paper";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -18,7 +20,12 @@ import { CommonActions, useNavigation } from "@react-navigation/native";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
+  const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
+  const [date, setDate] = useState(new Date(delivery.availability || Date.now()));
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const navigation = useNavigation<any>();
 
+    
   const stepsArray = [
     {
       label: "Présence (OUI/NON)",
@@ -52,20 +59,12 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     },
   ];
 
-  const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [date, setDate] = useState(new Date(delivery.availability || Date.now()));
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const navigation = useNavigation<any>();
 
-  const maxSteps = stepsArray.length;
-
-  useEffect(() => {
-    const firstIncompleteStep = stepsArray.findIndex(
-      (step) => updatedDelivery[step.field] == null
-    );
-    setCurrentStep(firstIncompleteStep === -1 ? 0 : firstIncompleteStep);
-  }, [updatedDelivery]);
+  const [currentStep, setCurrentStep] = useState(
+    stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
+      ? stepsArray.length
+      : stepsArray.findIndex((step) => !updatedDelivery[step.field]) + 1
+  );
 
   const handleSave = async () => {
     try {
@@ -76,12 +75,12 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         CommonActions.reset({
           index: 0,
           routes: [{ name: "DeliveriesList" }],
-        })
-      );    
+        })  
+      );  
     } catch (error) {
       console.error("Error saving delivery:", error);
-    }
-  };
+    }  
+  };  
 
   const handleInputChange = (field: Steps, value: string | boolean | Date) => {
     setUpdatedDelivery((prev: any) => ({ ...prev, [field]: value }));
@@ -91,19 +90,17 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
-    
+
     if (selectedDate) {
-      setDate(selectedDate)
+      setDate(selectedDate);
       handleInputChange(Steps.Availability, selectedDate.toISOString());
     }
   };
-  
 
-  const renderStep = () => {
-    const step = stepsArray[currentStep];
-
+  const renderStep = (stepIndex: number) => {
+    const step = stepsArray[stepIndex];
     return (
-      <View>
+      <View key={stepIndex} style={styles.stepContainer}>
         {step.type === "date" ? (
           <>
             <Text style={styles.label}>{step.label}:</Text>
@@ -120,10 +117,9 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                 value={date}
                 mode="date"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onDateChange} // Use the updated `onDateChange`
+                onChange={onDateChange}
               />
             )}
-
           </>
         ) : step.type === "boolean" ? (
           <>
@@ -152,45 +148,63 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       </View>
     );
   };
+  
 
   return (
-    <View style={styles.container}>
-      <View style={styles.progressBarContainer}>
-        <View
-          style={[
-            styles.progressBar,
-            { width: `${((currentStep + 1) / maxSteps) * 100}%` },
-          ]}
-        />
-      </View>
-      {renderStep()}
-      <View style={styles.buttonContainer}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={100}
 
-        {currentStep != 1 && (
-            <Button 
-              mode="text" 
-              disabled={!updatedDelivery[stepsArray[currentStep].field]} 
-              onPress={() => setCurrentStep((prev) => prev - 1)}>
-                Étape précedente
-            </Button>
-        )}
-        {        /**encore a modifier */
-        }
-            <Button 
-              mode="contained"
-              disabled={!updatedDelivery[stepsArray[currentStep].field]} 
-              onPress={() => setCurrentStep((prev) => prev + 1)}>
-                Étape suivante
-            </Button>
+    >      
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.progressBarContainer}>
+          <View
+            style={[
+              styles.progressBar,
+              { width: `${((currentStep + 1) / stepsArray.length) * 100}%` },
+            ]}
+          />
+        </View>
+        {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
+        <View style={styles.buttonContainer}>
+          {/* Étape précédente */}
+          <Button
+            mode="text"
+            onPress={() => setCurrentStep((prev) => prev - 1)}
+            disabled={currentStep === 0}
+          >
+            Étape précédente
+          </Button>
+          {/* Étape suivante */}
+          <Button
+            mode="contained"
+            onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
+            disabled={
+              (currentStep >= stepsArray.length - 1) || 
+              (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+            }
+          >
+            Étape suivante
+          </Button>
 
-      </View>
-    </View>
+        </View>
+
+        {/* Sauvegarder les modifications */}
+        <Button style={styles.saveButton} onPress={handleSave}>
+          Enregistrer les modifications
+        </Button>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 16,
     backgroundColor: "#f9f9f9",
   },
@@ -204,6 +218,9 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "#4caf50",
   },
+  stepContainer: {
+    marginBottom: 16,
+  },
   label: {
     fontSize: 18,
     fontWeight: "bold",
@@ -214,7 +231,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 10,
-    marginBottom: 16,
     borderRadius: 4,
     backgroundColor: "#fff",
   },
@@ -223,26 +239,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 16,
   },
-  nextButton: {
-    backgroundColor: "#007BFF",
-    padding: 12,
-    borderRadius: 6,
-    alignItems: "center",
-    flex: 1,
-    marginRight: 8,
-  },
   saveButton: {
+    alignSelf: "center",
+    marginTop: 16,
     backgroundColor: "#28a745",
     padding: 12,
     borderRadius: 6,
-    alignItems: "center",
-    flex: 1,
-    marginLeft: 8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
   },
   dateButton: {
     borderWidth: 1,

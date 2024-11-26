@@ -12,9 +12,10 @@ type ProductDetailsProps = StackScreenProps<RootStackParamList, 'ProductDetails'
 
 export type RootStackParamList = {
   ProductDetails: { productId: string };
-  Deliveries: { screen: "CreateDelivery" };
-  CreateDelivery: undefined;
+  Deliveries: { screen: "CreateDelivery"; params: { product?: Product } };
+  CreateDelivery: { product?: Product };
 };
+
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const { apiStore } = useStores();
@@ -24,11 +25,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp>(); // Navigation typée
 
-  const handlePress = () => {
-    // Naviguer vers l'écran des détails avec l'objet delivery
-    navigation.navigate("Deliveries", { screen: "CreateDelivery" });
-  };
-
+  
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -42,9 +39,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
         setLoading(false);
       }
     };
-
+    
     fetchProduct();
   }, [productId, apiStore]);
+  
+  const handlePress = () => {
+    // Naviguer vers l'écran des détails avec l'objet delivery
+    console.log("product details : " + JSON.stringify(product))
+    if (product)
+    navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} });
+
+  };
 
   if (loading) {
     return (

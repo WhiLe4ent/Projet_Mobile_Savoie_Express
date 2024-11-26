@@ -13,10 +13,10 @@ export type Product = {
     size: string; //cm
     quantity: number;
     currentSite: string;
-    destinationSite?: string;
+    destinationSite: string;
     status: ProductStatus;
     createdAt: Date;
-    updatedAt?: Date;
+    updatedAt: Date;
     photo: string;
 };
   
