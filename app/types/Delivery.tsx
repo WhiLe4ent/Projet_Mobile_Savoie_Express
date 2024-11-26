@@ -29,6 +29,13 @@ export type Delivery = {
     documentation: string; // "Présente" ou "Absente"
     alerts: string[]; // Liste des alertes envoyées (e.g., ["Produit introuvable"])
     assignedRCO: string; // Email du RCO actuellement responsable
-  };
-  
+};
+
+export enum Steps {
+    Presence = "presence",
+    Availability = "availability",
+    PreparationFees = "preparationFees",
+    Configuration = "configuration",
+    Documentation = "documentation",
+}
   

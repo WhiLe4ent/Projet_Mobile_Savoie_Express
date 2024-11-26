@@ -1,63 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Platform } from "react-native";
-import DateTimePicker, { DateTimePickerEvent} from "@react-native-community/datetimepicker";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Platform,
+  Switch,
+} from "react-native";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { updateDoc, doc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
+import { Steps } from "../../types/Delivery";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
 
-  // Initialiser l'état avec les données de livraison
-  const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [currentInput, setCurrentInput] = useState<string>("");
-  const [date, setDate] = useState(new Date(updatedDelivery.availability || new Date()));
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const steps = [
+  const stepsArray = [
     {
       label: "Présence (OUI/NON)",
-      value: updatedDelivery.presence,
-      field: "presence",
+      field: Steps.Presence,
       placeholder: "Présence sur le site (OUI/NON)",
-      type: "text",
+      type: "boolean",
     },
     {
       label: "Disponibilité",
-      value: updatedDelivery.availability,
-      field: "availability",
+      field: Steps.Availability,
       placeholder: "Choisir une date",
       type: "date",
     },
     {
       label: "Frais de préparation",
-      value: updatedDelivery.preparationFees,
-      field: "preparationFees",
+      field: Steps.PreparationFees,
       placeholder: "Description des frais",
       type: "text",
     },
     {
       label: "Configuration du produit",
-      value: updatedDelivery.configuration,
-      field: "configuration",
+      field: Steps.Configuration,
       placeholder: "Choisir configuration",
       type: "text",
     },
     {
       label: "Documentation",
-      value: updatedDelivery.documentation,
-      field: "documentation",
+      field: Steps.Documentation,
       placeholder: "Présente ou Absente ?",
       type: "text",
     },
   ];
 
-  // Vérifie les étapes déjà remplies au chargement
-  useEffect(() => {
-    const firstIncompleteStep = steps.findIndex((step) => !step.value);
-    setCurrentStep(firstIncompleteStep === -1 ? steps.length : firstIncompleteStep + 1);
-  }, [steps]);
+  const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [date, setDate] = useState(new Date(delivery.availability || Date.now()));
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const maxSteps = stepsArray.length;
+
+  useEffect(() => {
+    const firstIncompleteStep = stepsArray.findIndex(
+      (step) => updatedDelivery[step.field] == null
+    );
+    setCurrentStep(firstIncompleteStep === -1 ? 0 : firstIncompleteStep);
+  }, [updatedDelivery]);
 
   const handleSave = async () => {
     try {
@@ -69,73 +75,86 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     }
   };
 
-  const handleInputChange = (field: string, value: string | Date) => {
-    setUpdatedDelivery({ ...updatedDelivery, [field]: value });
-    setCurrentInput(value as string); 
+  const handleInputChange = (field: Steps, value: string | boolean | Date) => {
+    setUpdatedDelivery((prev: any) => ({ ...prev, [field]: value }));
   };
 
   const onDateChange = (_: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setDate(selectedDate);
-      handleInputChange("availability", selectedDate.toISOString());
+      handleInputChange(Steps.Availability, selectedDate.toISOString());
     }
   };
 
   const renderStep = () => {
-    return steps.slice(0, currentStep).map((step, index) => {
-      if (step.type === "date") {
-        return (
-          <View key={index}>
-            <Text style={styles.label}>{step.label} :</Text>
+    const step = stepsArray[currentStep];
+
+    return (
+      <View>
+        {step.type === "date" ? (
+          <>
+            <Text style={styles.label}>{step.label}:</Text>
             <Text
               style={styles.selectedDate}
               onPress={() => setShowDatePicker(true)}
             >
-              Date : {new Date(updatedDelivery[step.field]).toLocaleDateString()}
+              {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
             </Text>
             {showDatePicker && (
               <DateTimePicker
-                key={index}
                 value={date}
                 mode="date"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
                 onChange={onDateChange}
               />
             )}
-          </View>
-        );
-      }
-
-      return (
-        <View key={index}>
-          <Text style={styles.label}>{step.label} :</Text>
-          <TextInput
-            style={styles.input}
-            value={updatedDelivery[step.field] || ""}
-            onChangeText={(text) => handleInputChange(step.field, text)}
-            placeholder={step.placeholder}
-          />
-        </View>
-      );
-    });
+          </>
+        ) : step.type === "boolean" ? (
+          <>
+            <Text style={styles.label}>{step.label}:</Text>
+            <View style={styles.toggleContainer}>
+              <Switch
+                value={!!updatedDelivery[step.field]}
+                onValueChange={(value) => handleInputChange(step.field, value)}
+              />
+              <Text style={styles.toggleText}>
+                {updatedDelivery[step.field] ? "Oui" : "Non"}
+              </Text>
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={styles.label}>{step.label}:</Text>
+            <TextInput
+              style={styles.input}
+              value={updatedDelivery[step.field] || ""}
+              onChangeText={(text) => handleInputChange(step.field, text)}
+              placeholder={step.placeholder}
+            />
+          </>
+        )}
+      </View>
+    );
   };
-
-  const canProceedToNextStep =
-    currentInput.trim() !== "" || steps[currentStep - 1]?.type === "date";
 
   return (
     <View style={styles.container}>
+      <View style={styles.progressBarContainer}>
+        <View
+          style={[
+            styles.progressBar,
+            { width: `${((currentStep + 1) / maxSteps) * 100}%` },
+          ]}
+        />
+      </View>
       {renderStep()}
       <View style={styles.buttonContainer}>
-        {currentStep < steps.length && (
+        {currentStep < maxSteps - 1 && (
           <Button
             title="Étape suivante"
-            onPress={() => {
-              setCurrentStep((prev) => prev + 1);
-              setCurrentInput(""); 
-            }}
-            disabled={!canProceedToNextStep}
+            onPress={() => setCurrentStep((prev) => prev + 1)}
+            disabled={!updatedDelivery[stepsArray[currentStep].field]}
           />
         )}
         <Button title="Enregistrer les modifications" onPress={handleSave} />
@@ -144,12 +163,22 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
+  },
+  progressBarContainer: {
+    height: 10,
+    backgroundColor: "#ccc",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#007BFF",
   },
   label: {
     fontSize: 16,
@@ -166,12 +195,22 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 16,
   },
   selectedDate: {
     fontSize: 16,
     color: "#007BFF",
     marginTop: 8,
     marginBottom: 16,
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  toggleText: {
+    marginLeft: 8,
+    fontSize: 16,
   },
 });
 
