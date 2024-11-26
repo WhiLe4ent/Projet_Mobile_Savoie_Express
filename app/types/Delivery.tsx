@@ -35,7 +35,7 @@ export enum Steps {
     Presence = "presence",
     Availability = "availability",
     PreparationFees = "preparationFees",
-    Configuration = "configuration",
+    Configuration = "productConfiguration",
     Documentation = "documentation",
 }
   
