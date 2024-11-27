@@ -25,7 +25,7 @@ export const getStatusColor = (status: string) => {
 
     switch (status) {
         case ProductStatus.available:
-            res = '#17f213'
+            res = '#0ec70b'
             break
         case ProductStatus.inTransit:
             res = '#1353f2';

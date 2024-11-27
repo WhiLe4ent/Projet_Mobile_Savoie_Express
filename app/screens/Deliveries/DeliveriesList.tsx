@@ -5,6 +5,7 @@ import { useStores } from "../../stores";
 import { Delivery } from "../../types/Delivery";
 import { Searchbar } from "react-native-paper";
 import DeliveryCard from "./DeliveryCard";
+import theme from "../../settings/Theme";
 
 const DeliveriesList = () => {
   const { apiStore } = useStores();
@@ -30,7 +31,10 @@ const DeliveriesList = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.container}
+    >
       <Text style={styles.header}>Deliveries</Text>
 
       <Searchbar
@@ -38,16 +42,18 @@ const DeliveriesList = () => {
         onChangeText={setSearchQuery}
         value={searchQuery}
         style={styles.searchbar}
+        inputStyle={{ 
+          textAlignVertical: "center",
+          paddingBottom: 8
+        }}
+        placeholderTextColor={theme.colors.placeholder}
       />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-      >
+
         {filteredDeliveries.map((delivery) => (
           <DeliveryCard key={delivery.id} delivery={delivery} />
         ))}
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -63,6 +69,18 @@ const styles = StyleSheet.create({
   },
   searchbar: {
     marginBottom: 16,
+    borderRadius: 25,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#c2c0c0",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    height: 50,
+    textAlignVertical: "center",
+    justifyContent: "center"
   },
 });
 

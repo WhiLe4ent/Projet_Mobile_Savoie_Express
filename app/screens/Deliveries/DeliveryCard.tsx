@@ -49,7 +49,7 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
 const styles = StyleSheet.create({
   card: {
     padding: 10,
-    height: 100,
+    height: 110,
     flexDirection: "row",
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
+    paddingVertical: 5,
     justifyContent: "center",
   },
   title: {
