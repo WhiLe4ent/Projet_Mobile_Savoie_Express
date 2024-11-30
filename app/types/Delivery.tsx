@@ -9,18 +9,17 @@ export enum DeliveryStatus {
 
 export type Delivery = {
     id: string;
-    title: string; // Nom du client (titre de la livraison)
-    type: string; // Type (A ou B)
+    title: string;
+    type: string;
     model: string;
     reference: string;
     numberId: string;
     color: string;
-    physicalSite: string; // Site présence physique
-    destinationSite: string; // Site destination
-    notes: string; // Divers (nombre d'exemplaires ou autres commentaires)
+    physicalSite: string;
+    destinationSite: string;
+    notes: string;
     createdAt: Date;
     
-    // Workflow-specific fields
     status: string; // Étape actuelle du workflow (e.g., "Etape 3", "Etape 4", ...)
     presence: string; // "OUI" ou "NON" pour indiquer la présence sur le site
     availability: string; // Disponibilité : "Immédiate" ou une date précise

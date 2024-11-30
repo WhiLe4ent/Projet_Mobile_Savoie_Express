@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text } from 'react-native-paper';
-import { ScrollView, View, StyleSheet } from "react-native";
+import { ScrollView, View, StyleSheet, FlatList } from "react-native";
 import { useStores } from "../../stores";
 import { Delivery } from "../../types/Delivery";
 import { Searchbar } from "react-native-paper";
@@ -31,8 +31,8 @@ const DeliveriesList = () => {
   );
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
+
+    <View
       style={styles.container}
     >
       <Searchbar
@@ -40,17 +40,20 @@ const DeliveriesList = () => {
         onChangeText={setSearchQuery}
         value={searchQuery}
         style={styles.searchbar}
-        inputStyle={{ 
+        inputStyle={{
           textAlignVertical: "center",
           paddingBottom: 8
         }}
-        placeholderTextColor={theme.colors.placeholder}
+        placeholderTextColor={theme.colors.placeholder} 
+      />
+      
+      <FlatList
+        data={filteredDeliveries}
+        renderItem={({ item }) => <DeliveryCard delivery={item} />} 
+        showsVerticalScrollIndicator={false}
       />
 
-        {filteredDeliveries.map((delivery) => (
-          <DeliveryCard key={delivery.id} delivery={delivery} />
-        ))}
-    </ScrollView>
+    </View>
   );
 };
 
