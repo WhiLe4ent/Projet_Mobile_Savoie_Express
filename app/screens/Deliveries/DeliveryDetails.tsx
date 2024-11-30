@@ -25,42 +25,31 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
   const [date, setDate] = useState(new Date(delivery.availability || Date.now()));
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [activeDatePicker, setActiveDatePicker] = useState<string | null>(null);
   const navigation = useNavigation<any>();
   const theme = useTheme();
 
-  const stepsArray = [
-    {
-      label: "Présence",
-      field: Steps.Presence,
-      placeholder: "Présence sur le site (OUI/NON)",
-      type: "boolean",
-    },
-    {
-      label: "Disponibilité",
-      field: Steps.Availability,
-      placeholder: "Choisir une date",
-      type: "date",
-    },
-    {
-      label: "Frais de préparation",
-      field: Steps.PreparationFees,
-      placeholder: "Description des frais",
-      type: "text",
-    },
-    {
-      label: "Configuration du produit",
-      field: Steps.Configuration,
-      placeholder: "Choisir configuration",
-      type: "text",
-    },
-    {
-      label: "Documentation",
-      field: Steps.Documentation,
-      placeholder: "Présente ou Absente ?",
-      type: "boolean",
-    },
-  ];
+  interface Step {
+    label: string;
+    field: Steps;
+    type: "text" | "boolean" | "date" | "checkbox";
+  }
 
+  const stepsArray: Step[] = [
+    { label: "Présence", field: Steps.Presence, type: "boolean" },
+    { label: "Disponibilité", field: Steps.Availability, type: "date" },
+    { label: "Frais de préparation", field: Steps.PreparationFees, type: "text" },
+    { label: "Configuration du produit", field: Steps.Configuration, type: "text" },
+    { label: "Documentation", field: Steps.Documentation, type: "boolean" },
+    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date" },
+    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date" },
+    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean" },
+    { label: "Statut de financement", field: Steps.FinancingStatus, type: "text" },
+    { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean" },
+    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date" },
+    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean" },
+  ];
+  
   const [currentStep, setCurrentStep] = useState(
     stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
       ? stepsArray.length
@@ -95,55 +84,53 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     if (selectedDate) {
       setDate(selectedDate);
       handleInputChange(Steps.Availability, selectedDate.toISOString());
+      setShowDatePicker(false);
     }
   };
 
   const renderStep = (stepIndex: number) => {
     const step = stepsArray[stepIndex];
+  
     return (
-      <View key={stepIndex} style={styles.stepContainer}>
-        {step.type === "date" ? (
+      <View key={step.field} style={styles.stepContainer}>
+        <Text style={styles.label}>{step.label} :</Text>
+        {step.type === "text" && (
+          <TextInput
+            style={styles.input}
+            value={updatedDelivery[step.field] || ""}
+            onChangeText={(value) => handleInputChange(step.field, value)}
+          />
+        )}
+        {step.type === "boolean" && (
+          <Switch
+            value={!!updatedDelivery[step.field]}
+            onValueChange={(value) => handleInputChange(step.field, value)}
+          />
+        )}
+        {step.type === "date" && (
           <>
-            <Text style={styles.label}>{step.label}:</Text>
             <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
+              onPress={() => setActiveDatePicker(step.field)} // Open this step's date picker
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
                 {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
               </Text>
             </TouchableOpacity>
-            {showDatePicker && (
+            {activeDatePicker === step.field && ( // Show only this step's picker
               <DateTimePicker
                 value={date}
                 mode="date"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onDateChange}
+                onChange={(event, selectedDate) => {
+                  setActiveDatePicker(null); // Close the picker
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                    handleInputChange(step.field, selectedDate.toISOString());
+                  }
+                }}
               />
             )}
-          </>
-        ) : step.type === "boolean" ? (
-          <>
-            <Text style={styles.label}>{step.label}:</Text>
-            <View style={styles.toggleContainer}>
-              <Switch
-                value={!!updatedDelivery[step.field]}
-                onValueChange={(value) => handleInputChange(step.field, value)}
-              />
-              <Text style={styles.toggleText}>
-                {updatedDelivery[step.field] ? "Oui" : "Non"}
-              </Text>
-            </View>
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>{step.label}:</Text>
-            <TextInput
-              style={styles.input}
-              value={updatedDelivery[step.field] || ""}
-              onChangeText={(text) => handleInputChange(step.field, text)}
-              placeholder={step.placeholder}
-            />
           </>
         )}
       </View>
@@ -173,6 +160,16 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         </View>
           {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
 
+
+          {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onDateChange}
+                
+              />
+            )}
         <View style={styles.buttonContainer}>
           {/* Étape précédente */}
           <View style={[styles.buttonBackContainer]}>

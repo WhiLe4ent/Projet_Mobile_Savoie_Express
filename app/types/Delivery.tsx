@@ -31,10 +31,17 @@ export type Delivery = {
 };
 
 export enum Steps {
-    Presence = "presence",
-    Availability = "availability",
-    PreparationFees = "preparationFees",
-    Configuration = "productConfiguration",
-    Documentation = "documentation",
-}
+    Presence = "presence", // Étape 3
+    Availability = "availability", // Étape 4
+    PreparationFees = "preparationFees", // Étape 5
+    Configuration = "configuration", // Étape 6
+    Documentation = "documentation", // Étape 7
+    ConvoyageDate = "convoyageDate", // Étape 8
+    QualityControlDate = "qualityControlDate", // Étape 10
+    PackagingRequired = "packagingRequired", // Étape 11
+    FinancingStatus = "financingStatus", // Étape 12
+    PaymentReceived = "paymentReceived", // Étape 13
+    DeliveryDate = "deliveryDate", // Étape 14
+    PackagingReady = "packagingReady", // Étape 15
+  }
   
