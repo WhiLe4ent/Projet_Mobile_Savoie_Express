@@ -35,8 +35,6 @@ const DeliveriesList = () => {
       showsVerticalScrollIndicator={false}
       style={styles.container}
     >
-      <Text style={styles.header}>Deliveries</Text>
-
       <Searchbar
         placeholder="Search by title"
         onChangeText={setSearchQuery}
@@ -49,7 +47,6 @@ const DeliveriesList = () => {
         placeholderTextColor={theme.colors.placeholder}
       />
 
-
         {filteredDeliveries.map((delivery) => (
           <DeliveryCard key={delivery.id} delivery={delivery} />
         ))}
@@ -61,11 +58,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
   },
   searchbar: {
     marginBottom: 16,
