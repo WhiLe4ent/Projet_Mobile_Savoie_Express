@@ -37,8 +37,11 @@ export default class UserStore {
 
         if (userDoc.exists()) {
           const userData = userDoc.data() as User; // Cast Firestore document data to User type
-          this.user = userData;
 
+          runInAction(() => {
+            this.user = userData;
+          })
+          
           // Optionally, save the user data to AsyncStorage
           await AsyncStorage.setItem("user", JSON.stringify(userData));
         } else {

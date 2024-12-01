@@ -60,6 +60,9 @@ const DeliveriesList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 16,
+    paddingRight: 16,
+    paddingLeft: 16,
   },
   searchbar: {
     marginBottom: 16,
