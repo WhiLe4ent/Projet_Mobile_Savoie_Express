@@ -20,6 +20,7 @@ import { Steps } from "../../types/Delivery";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import theme from "../../settings/Theme";
 import { Role } from "../../types/User";
+import { useStores } from "../../stores";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
@@ -29,6 +30,9 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const [activeDatePicker, setActiveDatePicker] = useState<string | null>(null);
   const navigation = useNavigation<any>();
   const theme = useTheme();
+  const { userStore } = useStores(); 
+  const user = userStore.user; 
+  console.log(user);
 
   interface Step {
     label: string;
@@ -52,7 +56,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
   ];
 
-  const currentUserRole = "Secretariat"; // Rôle actuel de l'utilisateur (à récupérer dynamiquement)
+  const currentUserRole = user?.role || ""; // Rôle actuel de l'utilisateur (à récupérer dynamiquement)
 
   // Vérifier si l'utilisateur a la permission pour un step donné
   const canEditStep = (step: Step): boolean => {
