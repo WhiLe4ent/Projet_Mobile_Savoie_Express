@@ -38,7 +38,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     label: string;
     field: Steps;
     type: "text" | "boolean" | "date" | "checkbox";
-    allowedRoles: string[]; // Liste des rôles autorisés
+    allowedRoles: string[]; 
   }
   
   const stepsArray: Step[] = [
@@ -56,7 +56,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
   ];
 
-  const currentUserRole = user?.role || ""; // Rôle actuel de l'utilisateur (à récupérer dynamiquement)
+  //Si le user on lui met Secretariat (le moins de droit possible)
+  const currentUserRole = user?.role || Role.secretariat ; 
 
   // Vérifier si l'utilisateur a la permission pour un step donné
   const canEditStep = (step: Step): boolean => {

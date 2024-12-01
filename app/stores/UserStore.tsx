@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootStore } from ".";
 import { User } from "../types/FirebaseUser";
@@ -94,9 +94,11 @@ export default class UserStore {
     try {
       await this.removeStoredUser();
       
-      this.user = null;
-      this.token = '';
-  
+      runInAction(() => {
+        this.user = null;
+        this.token = '';
+      });
+      
       await FIREBASE_AUTH.signOut();
     } catch (e) {
       console.warn('Error during disconnect:', e);
