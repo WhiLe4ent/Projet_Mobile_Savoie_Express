@@ -8,8 +8,9 @@ import {
   Switch,
   ScrollView,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { Text, Button, Icon, useTheme, Title, IconButton} from "react-native-paper";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -17,49 +18,38 @@ import { updateDoc, doc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Steps } from "../../types/Delivery";
 import { CommonActions, useNavigation } from "@react-navigation/native";
+import theme from "../../settings/Theme";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
   const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
   const [date, setDate] = useState(new Date(delivery.availability || Date.now()));
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [activeDatePicker, setActiveDatePicker] = useState<string | null>(null);
   const navigation = useNavigation<any>();
+  const theme = useTheme();
 
-    
-  const stepsArray = [
-    {
-      label: "Présence (OUI/NON)",
-      field: Steps.Presence,
-      placeholder: "Présence sur le site (OUI/NON)",
-      type: "boolean",
-    },
-    {
-      label: "Disponibilité",
-      field: Steps.Availability,
-      placeholder: "Choisir une date",
-      type: "date",
-    },
-    {
-      label: "Frais de préparation",
-      field: Steps.PreparationFees,
-      placeholder: "Description des frais",
-      type: "text",
-    },
-    {
-      label: "Configuration du produit",
-      field: Steps.Configuration,
-      placeholder: "Choisir configuration",
-      type: "text",
-    },
-    {
-      label: "Documentation",
-      field: Steps.Documentation,
-      placeholder: "Présente ou Absente ?",
-      type: "text",
-    },
+  interface Step {
+    label: string;
+    field: Steps;
+    type: "text" | "boolean" | "date" | "checkbox";
+  }
+
+  const stepsArray: Step[] = [
+    { label: "Présence", field: Steps.Presence, type: "boolean" },
+    { label: "Disponibilité", field: Steps.Availability, type: "date" },
+    { label: "Frais de préparation", field: Steps.PreparationFees, type: "text" },
+    { label: "Configuration du produit", field: Steps.Configuration, type: "text" },
+    { label: "Documentation", field: Steps.Documentation, type: "boolean" },
+    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date" },
+    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date" },
+    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean" },
+    { label: "Statut de financement", field: Steps.FinancingStatus, type: "text" },
+    { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean" },
+    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date" },
+    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean" },
   ];
-
-
+  
   const [currentStep, setCurrentStep] = useState(
     stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
       ? stepsArray.length
@@ -70,7 +60,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     try {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
-      alert("Modifications enregistrées !");
+      Alert.alert("Success","Modifications enregistrées !" )
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -94,55 +84,53 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     if (selectedDate) {
       setDate(selectedDate);
       handleInputChange(Steps.Availability, selectedDate.toISOString());
+      setShowDatePicker(false);
     }
   };
 
   const renderStep = (stepIndex: number) => {
     const step = stepsArray[stepIndex];
+  
     return (
-      <View key={stepIndex} style={styles.stepContainer}>
-        {step.type === "date" ? (
+      <View key={step.field} style={styles.stepContainer}>
+        <Text style={styles.label}>{step.label} :</Text>
+        {step.type === "text" && (
+          <TextInput
+            style={styles.input}
+            value={updatedDelivery[step.field] || ""}
+            onChangeText={(value) => handleInputChange(step.field, value)}
+          />
+        )}
+        {step.type === "boolean" && (
+          <Switch
+            value={!!updatedDelivery[step.field]}
+            onValueChange={(value) => handleInputChange(step.field, value)}
+          />
+        )}
+        {step.type === "date" && (
           <>
-            <Text style={styles.label}>{step.label}:</Text>
             <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
+              onPress={() => setActiveDatePicker(step.field)} // Open this step's date picker
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
                 {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
               </Text>
             </TouchableOpacity>
-            {showDatePicker && (
+            {activeDatePicker === step.field && ( // Show only this step's picker
               <DateTimePicker
                 value={date}
                 mode="date"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onDateChange}
+                onChange={(event, selectedDate) => {
+                  setActiveDatePicker(null); // Close the picker
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                    handleInputChange(step.field, selectedDate.toISOString());
+                  }
+                }}
               />
             )}
-          </>
-        ) : step.type === "boolean" ? (
-          <>
-            <Text style={styles.label}>{step.label}:</Text>
-            <View style={styles.toggleContainer}>
-              <Switch
-                value={!!updatedDelivery[step.field]}
-                onValueChange={(value) => handleInputChange(step.field, value)}
-              />
-              <Text style={styles.toggleText}>
-                {updatedDelivery[step.field] ? "Oui" : "Non"}
-              </Text>
-            </View>
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>{step.label}:</Text>
-            <TextInput
-              style={styles.input}
-              value={updatedDelivery[step.field] || ""}
-              onChangeText={(text) => handleInputChange(step.field, text)}
-              placeholder={step.placeholder}
-            />
           </>
         )}
       </View>
@@ -160,6 +148,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       <ScrollView 
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.progressBarContainer}>
           <View
@@ -169,34 +158,57 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             ]}
           />
         </View>
-        {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
+          {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
+
+
+          {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onDateChange}
+                
+              />
+            )}
         <View style={styles.buttonContainer}>
           {/* Étape précédente */}
-          <Button
-            mode="text"
-            onPress={() => setCurrentStep((prev) => prev - 1)}
-            disabled={currentStep === 0}
-          >
-            Étape précédente
-          </Button>
-          {/* Étape suivante */}
-          <Button
-            mode="contained"
-            onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
-            disabled={
-              (currentStep >= stepsArray.length - 1) || 
-              (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
-            }
-          >
-            Étape suivante
-          </Button>
+          <View style={[styles.buttonBackContainer]}>
+            <IconButton
+              icon={"arrow-left"}
+              iconColor={theme.colors.primary}
+              size={22}
+              disabled={currentStep === 0}
+              onPress={() => setCurrentStep((prev) => prev - 1)}
+            />
+          </View>
 
+          {/* Étape suivante */}
+          <View style={[styles.buttonNextContainer]}>
+            <IconButton
+              icon={"arrow-right"}
+              iconColor={"#ffffff"}
+              size={22}
+              disabled={
+                (currentStep >= stepsArray.length - 1) || 
+                (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+              }
+              onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
+            />
+          </View>
         </View>
 
         {/* Sauvegarder les modifications */}
-        <Button style={styles.saveButton} onPress={handleSave}>
-          Enregistrer les modifications
+        <Button 
+          mode="contained"
+          style={styles.saveButton} 
+          onPress={handleSave}
+        >
+          <View style={styles.buttonContent}>
+            <Icon source={"content-save"} size={22} color="white" />
+            <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
+          </View>
         </Button>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -205,53 +217,65 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 16,
+    paddingHorizontal: 16,
     backgroundColor: "#f9f9f9",
   },
   progressBarContainer: {
     height: 8,
     backgroundColor: "#e0e0e0",
     borderRadius: 4,
-    marginBottom: 16,
+    marginVertical: 16,
+    overflow: "hidden",
   },
   progressBar: {
     height: "100%",
     backgroundColor: "#4caf50",
+    borderRadius: 4,
+  },
+  buttonNextContainer: {
+    borderWidth: 1,
+    borderRadius: 40,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary
+  },
+  buttonBackContainer: {
+    borderWidth: 1,
+    borderRadius: 40,
+    borderColor: theme.colors.primary
   },
   stepContainer: {
-    marginBottom: 16,
+    marginBottom: 24,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   label: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#1C1C1E",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 10,
-    borderRadius: 4,
-    backgroundColor: "#fff",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 16,
-  },
-  saveButton: {
-    alignSelf: "center",
-    marginTop: 16,
-    backgroundColor: "#28a745",
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    fontSize: 16,
   },
   dateButton: {
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 10,
-    borderRadius: 4,
+    padding: 12,
+    borderRadius: 8,
     backgroundColor: "#fff",
+    alignItems: "center",
   },
   dateText: {
     fontSize: 16,
@@ -260,13 +284,37 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginVertical: 8,
   },
   toggleText: {
     marginLeft: 8,
     fontSize: 16,
     color: "#333",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+    marginVertical: 10,
+  },
+  saveButton: {
+    alignSelf: "center",
+    marginVertical: 10,
+    backgroundColor: '#007BFF',
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
 
 export default DeliveryDetails;
+
+

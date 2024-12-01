@@ -9,18 +9,17 @@ export enum DeliveryStatus {
 
 export type Delivery = {
     id: string;
-    title: string; // Nom du client (titre de la livraison)
-    type: string; // Type (A ou B)
+    title: string;
+    type: string;
     model: string;
     reference: string;
     numberId: string;
     color: string;
-    physicalSite: string; // Site présence physique
-    destinationSite: string; // Site destination
-    notes: string; // Divers (nombre d'exemplaires ou autres commentaires)
+    physicalSite: string;
+    destinationSite: string;
+    notes: string;
     createdAt: Date;
     
-    // Workflow-specific fields
     status: string; // Étape actuelle du workflow (e.g., "Etape 3", "Etape 4", ...)
     presence: string; // "OUI" ou "NON" pour indiquer la présence sur le site
     availability: string; // Disponibilité : "Immédiate" ou une date précise
@@ -32,10 +31,17 @@ export type Delivery = {
 };
 
 export enum Steps {
-    Presence = "presence",
-    Availability = "availability",
-    PreparationFees = "preparationFees",
-    Configuration = "productConfiguration",
-    Documentation = "documentation",
-}
+    Presence = "presence", // Étape 3
+    Availability = "availability", // Étape 4
+    PreparationFees = "preparationFees", // Étape 5
+    Configuration = "configuration", // Étape 6
+    Documentation = "documentation", // Étape 7
+    ConvoyageDate = "convoyageDate", // Étape 8
+    QualityControlDate = "qualityControlDate", // Étape 10
+    PackagingRequired = "packagingRequired", // Étape 11
+    FinancingStatus = "financingStatus", // Étape 12
+    PaymentReceived = "paymentReceived", // Étape 13
+    DeliveryDate = "deliveryDate", // Étape 14
+    PackagingReady = "packagingReady", // Étape 15
+  }
   
