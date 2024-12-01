@@ -26,6 +26,14 @@ export type Delivery = {
     preparationFees: string; // "NON" ou description si "OUI"
     productConfiguration: string[]; // Liste des labels cochés (e.g., ["assemblé", "protégé"])
     documentation: string; // "Présente" ou "Absente"
+    convoyageDate: string;
+    qualityControlDate: string;
+    packagingRequired: string;
+    financingStatus: string;
+    paymentReceived: string;
+    deliveryDate: string;
+    packagingReady: string;
+    
     alerts: string[]; // Liste des alertes envoyées (e.g., ["Produit introuvable"])
     assignedRCO: string; // Email du RCO actuellement responsable
 };
@@ -34,7 +42,7 @@ export enum Steps {
     Presence = "presence", // Étape 3
     Availability = "availability", // Étape 4
     PreparationFees = "preparationFees", // Étape 5
-    Configuration = "configuration", // Étape 6
+    Configuration = "productConfiguration", // Étape 6
     Documentation = "documentation", // Étape 7
     ConvoyageDate = "convoyageDate", // Étape 8
     QualityControlDate = "qualityControlDate", // Étape 10

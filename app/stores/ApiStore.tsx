@@ -2,7 +2,7 @@ import { action, makeObservable } from "mobx";
 import { RootStore } from ".";
 import { FIREBASE_DB } from "../../FirebaseConfig";
 import { Product } from "../types/Product";
-import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { Delivery } from "../types/Delivery";
 
 

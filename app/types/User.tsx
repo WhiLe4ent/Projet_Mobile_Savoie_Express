@@ -2,7 +2,9 @@ export enum Role {
     vendeur = 'Vendeur',
     rco = 'RCO',
     financialManager = 'Financial manager',
+    convoyage = 'Convoyage',
     secretariat = 'Secretariat',
+    accessoiriste = 'Accessoiriste',
     expertProduit = 'Expert produit'
 }
 

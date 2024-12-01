@@ -19,6 +19,7 @@ import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Steps } from "../../types/Delivery";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import theme from "../../settings/Theme";
+import { Role } from "../../types/User";
 
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
@@ -33,22 +34,32 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     label: string;
     field: Steps;
     type: "text" | "boolean" | "date" | "checkbox";
+    allowedRoles: string[]; // Liste des rôles autorisés
   }
-
+  
   const stepsArray: Step[] = [
-    { label: "Présence", field: Steps.Presence, type: "boolean" },
-    { label: "Disponibilité", field: Steps.Availability, type: "date" },
-    { label: "Frais de préparation", field: Steps.PreparationFees, type: "text" },
-    { label: "Configuration du produit", field: Steps.Configuration, type: "text" },
-    { label: "Documentation", field: Steps.Documentation, type: "boolean" },
-    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date" },
-    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date" },
-    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean" },
-    { label: "Statut de financement", field: Steps.FinancingStatus, type: "text" },
-    { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean" },
-    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date" },
-    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean" },
+    { label: "Présence", field: Steps.Presence, type: "boolean", allowedRoles: [Role.rco] },
+    { label: "Disponibilité", field: Steps.Availability, type: "date", allowedRoles: [Role.rco] },
+    { label: "Frais de préparation", field: Steps.PreparationFees, type: "text", allowedRoles: [Role.rco] },
+    { label: "Configuration du produit", field: Steps.Configuration, type: "text", allowedRoles: [Role.rco] },
+    { label: "Documentation", field: Steps.Documentation, type: "boolean", allowedRoles: [Role.rco] },
+    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date", allowedRoles: [Role.convoyage, Role.rco] },
+    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
+    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean", allowedRoles: [Role.vendeur, Role.rco] },
+    { label: "Statut de financement", field: Steps.FinancingStatus, type: "text", allowedRoles: [Role.financialManager, Role.rco] },
+    { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
+    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
+    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
   ];
+
+  const currentUserRole = "Secretariat"; // Rôle actuel de l'utilisateur (à récupérer dynamiquement)
+
+  // Vérifier si l'utilisateur a la permission pour un step donné
+  const canEditStep = (step: Step): boolean => {
+    return step.allowedRoles.includes(currentUserRole);
+  };
+
+ 
   
   const [currentStep, setCurrentStep] = useState(
     stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
@@ -90,52 +101,68 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 
   const renderStep = (stepIndex: number) => {
     const step = stepsArray[stepIndex];
+    const isCompleted = !!updatedDelivery[step.field];
+    const isEditable = canEditStep(step);
   
     return (
       <View key={step.field} style={styles.stepContainer}>
         <Text style={styles.label}>{step.label} :</Text>
-        {step.type === "text" && (
-          <TextInput
-            style={styles.input}
-            value={updatedDelivery[step.field] || ""}
-            onChangeText={(value) => handleInputChange(step.field, value)}
-          />
-        )}
-        {step.type === "boolean" && (
-          <Switch
-            value={!!updatedDelivery[step.field]}
-            onValueChange={(value) => handleInputChange(step.field, value)}
-          />
-        )}
-        {step.type === "date" && (
+  
+        {/* Étapes complétées : affichage sous forme de texte */}
+        {isCompleted && !isEditable ? (
+          <Text style={styles.completedStepText}>
+            {step.type === "date"
+              ? new Date(updatedDelivery[step.field]).toLocaleDateString()
+              : updatedDelivery[step.field]?.toString() || "Non renseigné"}
+          </Text>
+        ) : (
           <>
-            <TouchableOpacity
-              onPress={() => setActiveDatePicker(step.field)} // Open this step's date picker
-              style={styles.dateButton}
-            >
-              <Text style={styles.dateText}>
-                {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
-              </Text>
-            </TouchableOpacity>
-            {activeDatePicker === step.field && ( // Show only this step's picker
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={(event, selectedDate) => {
-                  setActiveDatePicker(null); // Close the picker
-                  if (selectedDate) {
-                    setDate(selectedDate);
-                    handleInputChange(step.field, selectedDate.toISOString());
-                  }
-                }}
+            {/* Étapes modifiables */}
+            {step.type === "text" && isEditable && (
+              <TextInput
+                style={styles.input}
+                value={updatedDelivery[step.field] || ""}
+                onChangeText={(value) => handleInputChange(step.field, value)}
               />
+            )}
+            {step.type === "boolean" && isEditable && (
+              <Switch
+                value={!!updatedDelivery[step.field]}
+                onValueChange={(value) => handleInputChange(step.field, value)}
+              />
+            )}
+            {step.type === "date" && isEditable && (
+              <>
+                <TouchableOpacity
+                  onPress={() => setActiveDatePicker(step.field)}
+                  style={styles.dateButton}
+                >
+                  <Text style={styles.dateText}>
+                    {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
+                  </Text>
+                </TouchableOpacity>
+                {activeDatePicker === step.field && (
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={(event, selectedDate) => {
+                      setActiveDatePicker(null);
+                      if (selectedDate) {
+                        setDate(selectedDate);
+                        handleInputChange(step.field, selectedDate.toISOString());
+                      }
+                    }}
+                  />
+                )}
+              </>
             )}
           </>
         )}
       </View>
     );
   };
+  
   
 
   return (
@@ -145,6 +172,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       keyboardVerticalOffset={100}
 
     >      
+
+
       <ScrollView 
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
@@ -172,42 +201,53 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             )}
         <View style={styles.buttonContainer}>
           {/* Étape précédente */}
-          <View style={[styles.buttonBackContainer]}>
-            <IconButton
-              icon={"arrow-left"}
-              iconColor={theme.colors.primary}
-              size={22}
-              disabled={currentStep === 0}
-              onPress={() => setCurrentStep((prev) => prev - 1)}
-            />
-          </View>
+          {currentUserRole !== Role.secretariat && (
+            <View style={[styles.buttonBackContainer]}>
+              <IconButton
+                icon={"arrow-left"}
+                iconColor={theme.colors.primary}
+                size={22}
+                disabled={currentStep === 0}
+                onPress={() => setCurrentStep((prev) => prev - 1)}
+              />
+            </View>
+          )}
 
           {/* Étape suivante */}
-          <View style={[styles.buttonNextContainer]}>
-            <IconButton
-              icon={"arrow-right"}
-              iconColor={"#ffffff"}
-              size={22}
-              disabled={
-                (currentStep >= stepsArray.length - 1) || 
-                (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
-              }
-              onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
-            />
-          </View>
+          {currentUserRole !== Role.secretariat && (
+            <View style={[styles.buttonNextContainer]}>
+              <IconButton
+                icon={"arrow-right"}
+                iconColor={"#ffffff"}
+                size={22}
+                disabled={
+                  (currentStep >= stepsArray.length - 1) || 
+                  (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+                }
+                onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
+              />
+            </View>
+          )}
+
         </View>
 
         {/* Sauvegarder les modifications */}
-        <Button 
-          mode="contained"
-          style={styles.saveButton} 
-          onPress={handleSave}
-        >
-          <View style={styles.buttonContent}>
-            <Icon source={"content-save"} size={22} color="white" />
-            <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
-          </View>
-        </Button>
+        {currentUserRole !== Role.secretariat && 
+          Object.keys(updatedDelivery).some(
+            (key) => updatedDelivery[key] !== delivery[key]
+          ) && (
+            <Button 
+              mode="contained"
+              style={styles.saveButton} 
+              onPress={handleSave}
+            >
+              <View style={styles.buttonContent}>
+                <Icon source={"content-save"} size={22} color="white" />
+                <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
+              </View>
+            </Button>
+        )}
+
 
       </ScrollView>
     </KeyboardAvoidingView>
@@ -313,6 +353,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  completedStepContainer: {
+    marginVertical: 8,
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+  },
+  completedStepText: {
+    color: "#888",
+    fontSize: 16,
+  },
+  
 });
 
 export default DeliveryDetails;
