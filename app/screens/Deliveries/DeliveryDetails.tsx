@@ -59,11 +59,13 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   //Si le user on lui met Secretariat (le moins de droit possible)
   const currentUserRole = user?.role || Role.secretariat ; 
 
-  // Vérifier si l'utilisateur a la permission pour un step donné
   const canEditStep = (step: Step): boolean => {
-    return step.allowedRoles.includes(currentUserRole);
+    const normalizedCurrentUserRole = currentUserRole.toLowerCase();
+    const normalizedAllowedRoles = step.allowedRoles.map(role => role.toLowerCase());
+  
+    return normalizedAllowedRoles.includes(normalizedCurrentUserRole);
   };
-
+  
   const [currentStep, setCurrentStep] = useState(
     stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
       ? stepsArray.length

@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  ScrollView,
+} from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Dropdown } from "react-native-element-dropdown";
 import { Button, Text } from "react-native-paper";
-import { ScrollView } from "react-native-gesture-handler";
-import { CommonActions, RouteProp } from "@react-navigation/native";
+import { CommonActions } from "@react-navigation/native";
 import { useStores } from "../../stores";
 import { Product, ProductStatus } from "../../types/Product";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../Products/ProductDetails";
 
-
-type CreateDeliveryProps = NativeStackScreenProps<RootStackParamList, 'CreateDelivery'>;
+type CreateDeliveryProps = NativeStackScreenProps<RootStackParamList, "CreateDelivery">;
 
 const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) => {
-
   const defaultProduct: Product = {
     id: "",
     model: "",
@@ -30,25 +35,22 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     updatedAt: new Date(),
     photo: "",
   };
-  
-  const product = route.params?.product || defaultProduct; 
 
+  const product = route.params?.product || defaultProduct;
   const { apiStore } = useStores();
+
   const [step, setStep] = useState(1);
-  
-  // Valeurs par défaut pour éviter undefined au début
   const [delivery, setDelivery] = useState({
-    title: "", 
+    title: "",
     type: "",
-    model: product?.model ,
-    reference: product?.reference ,
-    numberId: product?.size ,
-    color: product?.color ,
-    physicalSite: product?.currentSite ,
-    destinationSite: product?.destinationSite ,
+    model: product.model,
+    reference: product.reference,
+    numberId: product.size,
+    color: product.color,
+    physicalSite: product.currentSite,
+    destinationSite: product.destinationSite,
     notes: "",
   });
-
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isValid, setIsValid] = useState(false);
@@ -65,7 +67,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
         const fetchedProducts = await apiStore.getProducts();
         setProducts(fetchedProducts);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        Alert.alert("Erreur", "Impossible de charger les produits.");
       } finally {
         setLoading(false);
       }
@@ -74,61 +76,42 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     fetchProducts();
   }, [apiStore]);
 
+  const validateForm = useCallback(() => {
+    const requiredFields = [
+      delivery.title,
+      delivery.type,
+      delivery.model,
+      delivery.reference,
+      delivery.numberId,
+      delivery.color,
+      delivery.physicalSite,
+      delivery.destinationSite,
+    ];
+    setIsValid(requiredFields.every((field) => field.trim().length > 0));
+  }, [delivery]);
 
-  const isNotEmpty = (value: string | undefined): boolean => {
-    return value !== undefined && value.replace(/\s+/g, "").length > 0;
-  };
-
-  const validateForm = (updatedDelivery: typeof delivery) => {
-    const {
-      title,
-      type,
-      model,
-      reference,
-      numberId,
-      color,
-      physicalSite,
-      destinationSite,
-    } = updatedDelivery;
-
-    const isValidForm =
-      isNotEmpty(title) &&
-      isNotEmpty(type) &&
-      isNotEmpty(model) &&
-      isNotEmpty(reference) &&
-      isNotEmpty(numberId) &&
-      isNotEmpty(color) &&
-      isNotEmpty(physicalSite) &&
-      isNotEmpty(destinationSite);
-
-    setIsValid(isValidForm);
-  };
-
-  const handleInputChange = (key: string, value: string) => {
-    const updatedDelivery = { ...delivery, [key]: value };
-    setDelivery(updatedDelivery);
-    validateForm(updatedDelivery);
+  const handleInputChange = (key: keyof typeof delivery, value: string) => {
+    setDelivery((prev) => {
+      const updated = { ...prev, [key]: value };
+      validateForm();
+      return updated;
+    });
   };
 
   const handleModelChange = (model: string) => {
     const selectedProduct = products.find((product) => product.model === model);
-    const updatedDelivery = {
-      ...delivery,
-      model,
-      reference: selectedProduct?.reference || "",
-      numberId: selectedProduct?.size || "",
-      color: selectedProduct?.color || "",
-      physicalSite: selectedProduct?.currentSite || "",
-      destinationSite: selectedProduct?.destinationSite || "",
-    };
-    setDelivery(updatedDelivery);
-    validateForm(updatedDelivery);
-  };
-
-  const goToNextStep = () => {
-    if (step === 1) {
-      setStep(2);
+    if (selectedProduct) {
+      setDelivery((prev) => ({
+        ...prev,
+        model,
+        reference: selectedProduct.reference,
+        numberId: selectedProduct.size,
+        color: selectedProduct.color,
+        physicalSite: selectedProduct.currentSite,
+        destinationSite: selectedProduct.destinationSite,
+      }));
     }
+    validateForm();
   };
 
   const saveDelivery = async () => {
@@ -136,6 +119,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
       Alert.alert("Incomplet", "Veuillez remplir tous les champs obligatoires avant de continuer.");
       return;
     }
+
     try {
       const newDelivery = {
         ...delivery,
@@ -143,8 +127,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
       };
       const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
       await addDoc(deliveriesCollectionRef, newDelivery);
-      Alert.alert("Succès", "Votre livraison a bien été créé.");
-      
+      Alert.alert("Succès", "Votre livraison a bien été créée.");
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -152,43 +135,37 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
         })
       );
     } catch (error) {
-      console.error("Error adding delivery:", error);
+      Alert.alert("Erreur", "Une erreur est survenue lors de la sauvegarde.");
     }
   };
 
   return (
     <KeyboardAvoidingView
-    style={styles.container}
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    keyboardVerticalOffset={100}
-
-  >
-    <ScrollView 
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={100}
     >
-      <View style={styles.container}>
-        {step === 1 ? (
-          <View>
-            <Text style={styles.label}>Nom du client :</Text>
-            <TextInput
-              style={styles.input}
-              value={delivery.title}
-              onChangeText={(text) => handleInputChange("title", text)}
-              placeholder="Entrez le nom du client"
-            />
-            <View style={styles.buttonContainer}>
-              <Button mode="text" onPress={() => navigation.dispatch(CommonActions.goBack())}>
-                Précédent
-              </Button>
-              <Button mode="contained" onPress={goToNextStep}>
-                Suivant
-              </Button>
-            </View>
-          </View>
-          ) : <>
-            <View>
+      <ScrollView keyboardShouldPersistTaps="handled">
+        <View style={styles.container}>
+          {step === 1 ? (
+            <>
+              <TextInputField
+                label="Nom du client*"
+                value={delivery.title}
+                onChangeText={(text: string) => handleInputChange("title", text)}
+                placeholder="Entrez le nom du client"
+              />
+              <View style={styles.buttonContainer}>
+                <Button mode="text" onPress={() => navigation.goBack()}>
+                  Précédent
+                </Button>
+                <Button mode="contained" onPress={() => setStep(2)} disabled={!isValid}>
+                  Suivant
+                </Button>
+              </View>
+            </>
+          ) : (
+            <>
               <DropdownField
                 label="Type*"
                 data={deliveryTypes}
@@ -197,48 +174,39 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
               />
               <DropdownField
                 label="Modèle*"
-                data={products.map((product) => ({ label: product.model, value: product.model }))}
+                data={products.map((p) => ({ label: p.model, value: p.model }))}
                 value={delivery.model}
                 onChange={handleModelChange}
                 search
               />
-              {[
-                { label: "Référence*", key: "reference", placeholder: "Référence" },
-                { label: "Numéro ID*", key: "numberId", placeholder: "Numéro ID" },
-                { label: "Couleur*", key: "color", placeholder: "Couleur" },
-                { label: "Site présence physique*", key: "physicalSite", placeholder: "Site physique" },
-                { label: "Site destination*", key: "destinationSite", placeholder: "Site destination" },
-                { label: "Divers", key: "notes", placeholder: "Notes" }
-              ].map(({ label, key, placeholder }) => (
-                <TextInputField
-                  key={key}
-                  label={label}
-                  value={(delivery as any)[key]}
-                  onChangeText={(text: string) => handleInputChange(key, text)}
-                  placeholder={placeholder}
-                />
-              ))}
-
+              {["reference", "numberId", "color", "physicalSite", "destinationSite", "notes"].map(
+                (key) => (
+                  <TextInputField
+                    key={key}
+                    label={key}
+                    value={delivery[key as keyof typeof delivery]}
+                    onChangeText={(text: string) => handleInputChange(key as keyof typeof delivery, text)}
+                    placeholder={`Entrez ${key}`}
+                  />
+                )
+              )}
               <View style={styles.buttonContainer}>
                 <Button mode="text" onPress={() => setStep(1)}>
                   Précédent
                 </Button>
-                <Button mode="contained" onPress={saveDelivery} disabled={false}>
+                <Button mode="contained" onPress={saveDelivery} disabled={!isValid}>
                   Créer la livraison
                 </Button>
               </View>
-            </View>
-          </>
-        }
-      </View>
-    </ScrollView>
+            </>
+          )}
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
-
-
-const DropdownField = ({ label, data, value, onChange, search = false }: any) => (
+const DropdownField = React.memo(({ label, data, value, onChange, search }: any) => (
   <View>
     <Text style={styles.label}>{label} :</Text>
     <Dropdown
@@ -249,15 +217,12 @@ const DropdownField = ({ label, data, value, onChange, search = false }: any) =>
       value={value}
       onChange={(item) => onChange(item.value)}
       style={styles.input}
-      placeholderStyle={styles.placeholderStyle}
-      selectedTextStyle={styles.selectedTextStyle}
-      containerStyle={styles.dropdownContainer}
       search={search}
     />
   </View>
-);
+));
 
-const TextInputField = ({ label, value, onChangeText, placeholder }: any) => (
+const TextInputField = React.memo(({ label, value, onChangeText, placeholder }: any) => (
   <View>
     <Text style={styles.label}>{label} :</Text>
     <TextInput
@@ -267,12 +232,12 @@ const TextInputField = ({ label, value, onChangeText, placeholder }: any) => (
       placeholder={placeholder}
     />
   </View>
-);
+));
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding:16,
+    padding: 16,
     backgroundColor: "#fff",
   },
   label: {
@@ -286,17 +251,6 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 16,
     borderRadius: 4,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-    color: "#aaa",
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: "#000",
-  },
-  dropdownContainer: {
-    borderRadius: 8,
   },
   buttonContainer: {
     flexDirection: "row",

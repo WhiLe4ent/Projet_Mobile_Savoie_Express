@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Alert, ScrollView, Platform, TouchableOpacity } from 'react-native';
-import { FIREBASE_AUTH, FIREBASE_DB } from '../../../FirebaseConfig';
+import { FIREBASE_AUTH } from '../../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import { RegisterForm, Role } from '../../types/User';
+import { RegisterForm } from '../../types/User';
 import theme from '../../settings/Theme';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
@@ -44,14 +43,10 @@ const Register = observer(() => {
 
   const handleCreateAccount = async (data: RegisterForm) => {  
     try {
-      // Create user with email and password
       const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, data.email, data.password);
       const userId = response.user.uid;
   
-      // Save user data to the database using the userStore
       await userStore.saveUserToDatabase(userId, data);
-  
-      // Log user into the app and save their token
       await userStore.loginUser({
         user: response.user,
         token: await response.user.getIdToken(),
