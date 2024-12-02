@@ -8,16 +8,14 @@ import { ScrollView } from "react-native-gesture-handler";
 import { CommonActions, RouteProp } from "@react-navigation/native";
 import { useStores } from "../../stores";
 import { Product, ProductStatus } from "../../types/Product";
-import { RootStackParamList } from "../../navigations/RootStackParamList";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../Products/ProductDetails";
 
 
+type CreateDeliveryProps = NativeStackScreenProps<RootStackParamList, 'CreateDelivery'>;
 
-interface CreateDeliveryProps {
-  navigation: any;
-  route: RouteProp<RootStackParamList, 'CreateDelivery'>;  // On récupère les paramètres via 'route'
-}
+const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) => {
 
-const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
   const defaultProduct: Product = {
     id: "",
     model: "",
@@ -32,8 +30,8 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
     updatedAt: new Date(),
     photo: "",
   };
+  
   const product = route.params?.product || defaultProduct; 
-  console.log("create delivery : " + JSON.stringify(product))
 
   const { apiStore } = useStores();
   const [step, setStep] = useState(1);
@@ -145,7 +143,8 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
       };
       const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
       await addDoc(deliveriesCollectionRef, newDelivery);
-
+      alert("Votre livraison a bien été créé.");
+      
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -180,7 +179,7 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
               placeholder="Entrez le nom du client"
             />
             <View style={styles.buttonContainer}>
-              <Button mode="text" disabled>
+              <Button mode="text" onPress={() => navigation.dispatch(CommonActions.goBack())}>
                 Précédent
               </Button>
               <Button mode="contained" onPress={goToNextStep}>
@@ -188,50 +187,49 @@ const CreateDelivery = ({ navigation, route }: CreateDeliveryProps) => {
               </Button>
             </View>
           </View>
-        ) : (
-          <View>
-            <DropdownField
-              label="Type*"
-              data={deliveryTypes}
-              value={delivery.type}
-              onChange={(value: string) => handleInputChange("type", value)}
-            />
-
-            <DropdownField
-              label="Modèle*"
-              data={products.map((product) => ({ label: product.model, value: product.model }))}
-              value={delivery.model}
-              onChange={handleModelChange}
-              search
-            />
-
-            {[
-              { label: "Référence*", key: "reference", placeholder: "Référence" },
-              { label: "Numéro ID*", key: "numberId", placeholder: "Numéro ID" },
-              { label: "Couleur*", key: "color", placeholder: "Couleur" },
-              { label: "Site présence physique*", key: "physicalSite", placeholder: "Site physique" },
-              { label: "Site destination*", key: "destinationSite", placeholder: "Site destination" },
-              { label: "Divers", key: "notes", placeholder: "Notes" },
-            ].map(({ label, key, placeholder }) => (
-              <TextInputField
-                key={key}
-                label={label}
-                value={(delivery as any)[key]}
-                onChangeText={(text: string) => handleInputChange(key, text)}
-                placeholder={placeholder}
+          ) : <>
+            <View>
+              <DropdownField
+                label="Type*"
+                data={deliveryTypes}
+                value={delivery.type}
+                onChange={(value: string) => handleInputChange("type", value)}
               />
-            ))}
+              <DropdownField
+                label="Modèle*"
+                data={products.map((product) => ({ label: product.model, value: product.model }))}
+                value={delivery.model}
+                onChange={handleModelChange}
+                search
+              />
+              {[
+                { label: "Référence*", key: "reference", placeholder: "Référence" },
+                { label: "Numéro ID*", key: "numberId", placeholder: "Numéro ID" },
+                { label: "Couleur*", key: "color", placeholder: "Couleur" },
+                { label: "Site présence physique*", key: "physicalSite", placeholder: "Site physique" },
+                { label: "Site destination*", key: "destinationSite", placeholder: "Site destination" },
+                { label: "Divers", key: "notes", placeholder: "Notes" }
+              ].map(({ label, key, placeholder }) => (
+                <TextInputField
+                  key={key}
+                  label={label}
+                  value={(delivery as any)[key]}
+                  onChangeText={(text: string) => handleInputChange(key, text)}
+                  placeholder={placeholder}
+                />
+              ))}
 
-            <View style={styles.buttonContainer}>
-              <Button mode="text" onPress={() => setStep(1)}>
-                Précédent
-              </Button>
-              <Button mode="contained" onPress={saveDelivery} disabled={false}>
-                Créer la livraison
-              </Button>
+              <View style={styles.buttonContainer}>
+                <Button mode="text" onPress={() => setStep(1)}>
+                  Précédent
+                </Button>
+                <Button mode="contained" onPress={saveDelivery} disabled={false}>
+                  Créer la livraison
+                </Button>
+              </View>
             </View>
-          </View>
-        )}
+          </>
+        }
       </View>
     </ScrollView>
     </KeyboardAvoidingView>
@@ -274,7 +272,7 @@ const TextInputField = ({ label, value, onChangeText, placeholder }: any) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding:16,
     backgroundColor: "#fff",
   },
   label: {

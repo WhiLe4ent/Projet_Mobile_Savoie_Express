@@ -5,13 +5,10 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Delivery } from "../../types/Delivery";
 
-// Définir les types des routes
 type RootStackParamList = {
-  DeliveryDetails: { delivery: Delivery }; // Déclare les paramètres pour DeliveryDetails
-  // Ajoute d'autres écrans ici si nécessaire
+  DeliveryDetails: { delivery: Delivery }; 
 };
 
-// Typage pour la navigation
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "DeliveryDetails">;
 
 type DeliveryCardProps = {
@@ -19,10 +16,9 @@ type DeliveryCardProps = {
 };
 
 const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
-  const navigation = useNavigation<NavigationProp>(); // Utiliser le type de navigation
+  const navigation = useNavigation<NavigationProp>();
 
   const handlePress = () => {
-    // Naviguer vers l'écran des détails avec l'objet delivery
     navigation.navigate("DeliveryDetails", { delivery });
   };
 
@@ -35,7 +31,7 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
         <Text style={styles.attribute}>Model: {delivery.model}</Text>
         <Text style={styles.attribute}>Description: {delivery.notes}</Text>
         <Text style={styles.attribute}>
-          Date: {new Date(delivery.availability).toLocaleDateString('en-US', {
+          Date: {new Date(delivery.createdAt).toLocaleDateString('fr-FR', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',

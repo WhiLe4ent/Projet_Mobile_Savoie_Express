@@ -1,7 +1,7 @@
 import { View, KeyboardAvoidingView, StyleSheet, Image } from 'react-native';
 import { Button, Text, Divider } from 'react-native-paper';
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useStores } from '../../stores';
 import { User } from '../../types/FirebaseUser';
 
@@ -17,8 +17,12 @@ const Home = () => {
   const signOut = async () => {
     try {
       await userStore.disconnect();
-      navigation.navigate('Login');
-    } catch (e) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Login' }], // Redirige vers l'écran de connexion
+        })
+      );    } catch (e) {
       console.warn('Error during sign-out:', e);
     }
   };
@@ -27,17 +31,14 @@ const Home = () => {
     <View style={styles.container}>
       <KeyboardAvoidingView behavior="padding" style={styles.innerContainer}>
 
-        {/* Affichage du logo */}
         <Image source={require('../../../assets/splash-icon.png')} style={styles.logo} />
         
-        {/* Bienvenue et rôle de l'utilisateur */}
         <Text style={styles.welcomeText}>
           Bienvenue, <Text style={styles.roleText}>{user?.role ?? 'Utilisateur'}</Text> !
         </Text>
 
         <Divider style={styles.divider} />
 
-        {/* Boutons pour les actions principales */}
         <Button
           mode="contained"
           style={styles.button}
@@ -49,7 +50,7 @@ const Home = () => {
         <Button
           mode="contained"
           style={styles.button}
-          onPress={() => navigation.navigate('TrackDelivery')}
+          onPress={() => navigation.navigate('Deliveries')}
         >
           Suivre une livraison
         </Button>
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#DDD',
   },
-  button: {
+  button: { 
     marginVertical: 10,
     width: '80%',
     backgroundColor: '#007BFF',

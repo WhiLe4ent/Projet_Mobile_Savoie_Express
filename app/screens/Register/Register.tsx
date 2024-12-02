@@ -74,7 +74,6 @@ const Register = () => {
       >
         <Text style={styles.title}>Créer un compte</Text>
 
-        {/* Email Field */}
         <Controller
           control={control}
           name="email"
@@ -102,7 +101,6 @@ const Register = () => {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-        {/* Password Field */}
         <Controller
           control={control}
           name="password"
@@ -130,7 +128,6 @@ const Register = () => {
         />
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
  
-        {/* First Name Field */}
         <Controller
           control={control}
           name="firstName"
@@ -153,7 +150,6 @@ const Register = () => {
         />
         {errors.firstName && <Text style={styles.errorText}>{errors.firstName.message}</Text>}
         
-        {/* Last Name Field */}
         <Controller
           control={control}
           name="lastName"
@@ -176,7 +172,6 @@ const Register = () => {
         />
         {errors.lastName && <Text style={styles.errorText}>{errors.lastName.message}</Text>}
 
-        {/* Pseudo Field */}
         <Controller
           control={control}
           name="pseudo"
@@ -196,7 +191,6 @@ const Register = () => {
         />
         {errors.pseudo && <Text style={styles.errorText}>{errors.pseudo.message}</Text>}
 
-        {/* Role Picker */}
         <Controller
           control={control}
           name="role"
@@ -215,10 +209,8 @@ const Register = () => {
         />
         {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
-      {/* Error Message */}
       {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
-        {/* Submit Button */}
         <View style={styles.buttonContainer}>
           <Button mode="contained" onPress={handleSubmit(handleCreateAccount)}>
             Créer compte

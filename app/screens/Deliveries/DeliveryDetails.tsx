@@ -31,8 +31,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const navigation = useNavigation<any>();
   const theme = useTheme();
   const { userStore } = useStores(); 
+  const { apiStore } = useStores();
   const user = userStore.user; 
-  console.log(user);
 
   interface Step {
     label: string;
@@ -113,7 +113,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       <View key={step.field} style={styles.stepContainer}>
         <Text style={styles.label}>{step.label} :</Text>
   
-        {/* Étapes complétées : affichage sous forme de texte */}
         {isCompleted && !isEditable ? (
           <Text style={styles.completedStepText}>
             {step.type === "date"
@@ -122,7 +121,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           </Text>
         ) : (
           <>
-            {/* Étapes modifiables */}
             {step.type === "text" && isEditable && (
               <TextInput
                 style={styles.input}
@@ -168,6 +166,21 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     );
   };
   
+
+  const handleDelete = async () => {
+    try {
+      await apiStore.deleteDelivery(delivery.id);
+      Alert.alert("Success", `Delivery with ID "${delivery.title}" has been deleted`);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "DeliveriesList" }],
+        })  
+      ); 
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete delivery. Please try again.");
+    }
+  };
   
 
   return (
@@ -175,10 +188,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={100}
-
     >      
-
-
       <ScrollView 
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
@@ -193,8 +203,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           />
         </View>
           {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
-
-
           {showDatePicker && (
               <DateTimePicker
                 value={date}
@@ -205,7 +213,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
               />
             )}
         <View style={styles.buttonContainer}>
-          {/* Étape précédente */}
           {currentUserRole !== Role.secretariat && (
             <View style={[styles.buttonBackContainer]}>
               <IconButton
@@ -218,40 +225,43 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             </View>
           )}
 
-          {/* Étape suivante */}
           {currentUserRole !== Role.secretariat && (
-            <View style={[styles.buttonNextContainer]}>
-              <IconButton
-                icon={"arrow-right"}
-                iconColor={"#ffffff"}
-                size={22}
-                disabled={
-                  (currentStep >= stepsArray.length - 1) || 
-                  (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
-                }
-                onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
-              />
-            </View>
-          )}
+              <View style={[styles.buttonNextContainer]}>
+                <IconButton
+                  icon={"arrow-right"}
+                  iconColor={"#ffffff"}
+                  size={22}
+                  disabled={
+                    (currentStep >= stepsArray.length - 1) || 
+                    (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+                  }
+                  onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
+                />
+              </View>
+              )
+          }
 
         </View>
-
-        {/* Sauvegarder les modifications */}
         {currentUserRole !== Role.secretariat && 
           Object.keys(updatedDelivery).some(
             (key) => updatedDelivery[key] !== delivery[key]
-          ) && (
-            <Button 
-              mode="contained"
-              style={styles.saveButton} 
-              onPress={handleSave}
-            >
-              <View style={styles.buttonContent}>
-                <Icon source={"content-save"} size={22} color="white" />
-                <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
-              </View>
-            </Button>
-        )}
+          ) ? (
+            <><View>
+              <Button
+                mode="contained"
+                style={styles.saveButton}
+                onPress={handleSave}
+                >
+                <View style={styles.buttonContent}>
+                  <Icon source={"content-save"} size={22} color="white" />
+                  <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
+                </View>
+                </Button>
+                <Button onPress={handleDelete}>Supprimer la livraison</Button>
+            </View>
+          </>
+          ): null
+        }
 
 
       </ScrollView>
