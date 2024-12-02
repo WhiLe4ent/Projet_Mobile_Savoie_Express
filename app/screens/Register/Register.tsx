@@ -56,7 +56,7 @@ const Register = () => {
       });
 
       Alert.alert('Success', 'Account created successfully!');
-      navigation.navigate('Login');
+      navigation.navigate('TabScreens');
     } catch (error: any) {
       console.error(error);
       Alert.alert('Error', error.message);
@@ -71,6 +71,7 @@ const Register = () => {
       <ScrollView 
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Créer un compte</Text>
 
@@ -209,7 +210,7 @@ const Register = () => {
         />
         {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
-      {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
+        {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
         <View style={styles.buttonContainer}>
           <Button mode="contained" onPress={handleSubmit(handleCreateAccount)}>

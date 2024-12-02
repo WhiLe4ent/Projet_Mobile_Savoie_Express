@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Dropdown } from "react-native-element-dropdown";
@@ -133,7 +133,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
 
   const saveDelivery = async () => {
     if (!isValid) {
-      alert("Veuillez remplir tous les champs obligatoires avant de continuer.");
+      Alert.alert("Incomplet", "Veuillez remplir tous les champs obligatoires avant de continuer.");
       return;
     }
     try {
@@ -143,7 +143,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
       };
       const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
       await addDoc(deliveriesCollectionRef, newDelivery);
-      alert("Votre livraison a bien été créé.");
+      Alert.alert("Succès", "Votre livraison a bien été créé.");
       
       navigation.dispatch(
         CommonActions.reset({
