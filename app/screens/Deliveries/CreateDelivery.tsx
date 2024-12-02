@@ -8,7 +8,8 @@ import { CommonActions } from "@react-navigation/native";
 import { useStores } from "../../stores";
 import { Product, ProductStatus } from "../../types/Product";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../Products/ProductDetails";
+import { navigationRef } from "../../navigations/Navigations";
+import { RootStackParamList } from "../../navigations/RootStackParamList";
 
 type CreateDeliveryProps = NativeStackScreenProps<RootStackParamList, "CreateDelivery">;
 
@@ -162,7 +163,13 @@ useEffect(() => {
               <View style={styles.buttonContainer}>
 
                 <Button mode="text" onPress={() =>  
-                  navigation.getParent()}>
+                        navigation.dispatch(
+                          CommonActions.reset({
+                            index: 0,
+                            routes: [{ name: "TabScreens" }],
+                          })
+                        )
+                  }>
                   Précédent
                 </Button>
                 <Button mode="contained" onPress={() => setStep(2)} disabled={!isValid}>

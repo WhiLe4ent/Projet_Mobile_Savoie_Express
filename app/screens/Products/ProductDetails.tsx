@@ -6,15 +6,9 @@ import { Button, useTheme } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
 import { StackScreenProps } from '@react-navigation/stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigations/RootStackParamList';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "CreateDelivery">;
 type ProductDetailsProps = StackScreenProps<RootStackParamList, 'ProductDetails'>;
-
-export type RootStackParamList = {
-  ProductDetails: { productId: string };
-  Deliveries: { screen: "CreateDelivery"; params: { product?: Product } };
-  CreateDelivery: { product?: Product };
-};
 
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
@@ -23,7 +17,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const theme = useTheme();
   const [product, setProduct] = useState<Product>();
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation<NavigationProp>(); // Navigation typée
+  const navigation = useNavigation<any>();
 
   
   useEffect(() => {

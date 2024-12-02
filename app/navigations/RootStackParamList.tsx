@@ -5,9 +5,10 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   TabScreens: undefined;
+  Home: undefined;
 
   RoleScreens: undefined;
-
+  ProductNavigator: undefined;
   Products: undefined;
   ProductDetails: { productId: string };
 

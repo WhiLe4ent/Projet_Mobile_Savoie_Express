@@ -54,7 +54,7 @@ const Home = () => {
         <Button
           mode="contained"
           style={styles.button}
-          onPress={() => navigation.navigate('Deliveries')}
+          onPress={() => navigation.navigate('Deliveries', { screen: 'DeliveriesList' })}
         >
           Suivre une livraison
         </Button>
