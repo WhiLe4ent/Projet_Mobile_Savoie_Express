@@ -39,9 +39,7 @@ const Navigations = observer(() => {
   };
 
   useEffect(() => {
-    // Vérifiez si l'utilisateur est connecté à chaque changement d'état
     if (!userStore.user) {
-      // Si l'utilisateur n'est pas connecté, redirigez vers la page Login
       navigationRef.navigate('Login');
     }
   }, [userStore.user]);

@@ -5,6 +5,7 @@ import React from 'react';
 import Home from '../screens/Home/Home';
 import Products from '../screens/Products/Products';
 import DeliveryNavigator from './DeliveryNavigator';
+import ProductNavigator from './ProductNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -40,7 +41,7 @@ const TabNavigator = () =>
                         case 'Deliveries':
                             iconName = 'truck-delivery'
                             break;
-                        case 'Products':
+                        case 'ProductNavigator':
                             iconName = 'package-variant-closed'
                             break;
                     }
@@ -73,14 +74,11 @@ const TabNavigator = () =>
                 options={{}}
             />
             <Tab.Screen 
-                name='Products' 
-                component={Products} 
+                name='ProductNavigator' 
+                component={ProductNavigator} 
                 options={{
                     tabBarLabel: 'Products',
-                    headerShown: true,
                     headerTitle: 'Products',
-                    headerStyle,
-                    headerTitleStyle,
                 }}
             />
         </Tab.Navigator>

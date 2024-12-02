@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Alert, ScrollView,} from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Dropdown } from "react-native-element-dropdown";
@@ -16,7 +8,8 @@ import { CommonActions } from "@react-navigation/native";
 import { useStores } from "../../stores";
 import { Product, ProductStatus } from "../../types/Product";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../Products/ProductDetails";
+import { navigationRef } from "../../navigations/Navigations";
+import { RootStackParamList } from "../../navigations/RootStackParamList";
 
 type CreateDeliveryProps = NativeStackScreenProps<RootStackParamList, "CreateDelivery">;
 
@@ -76,26 +69,38 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     fetchProducts();
   }, [apiStore]);
 
-  const validateForm = useCallback(() => {
-    const requiredFields = [
-      delivery.title,
-      delivery.type,
-      delivery.model,
-      delivery.reference,
-      delivery.numberId,
-      delivery.color,
-      delivery.physicalSite,
-      delivery.destinationSite,
-    ];
-    setIsValid(requiredFields.every((field) => field.trim().length > 0));
-  }, [delivery]);
+
+
+const validateForm = useCallback(
+  (updatedDelivery: typeof delivery) => {
+    if (step === 1) {
+      setIsValid(updatedDelivery.title.trim().length > 0);
+    } else {
+      const requiredFields = [
+        updatedDelivery.title || "",
+        updatedDelivery.type  || "",
+        updatedDelivery.model  || "",
+        updatedDelivery.reference || "", 
+        updatedDelivery.numberId || "",
+        updatedDelivery.color || "",
+        updatedDelivery.physicalSite || "",
+        updatedDelivery.destinationSite || "",
+      ];
+      setIsValid(requiredFields.every((field) => field.trim().length > 0));
+    }
+  },
+  [step]
+);
+
+useEffect(() => {
+  validateForm(delivery);
+}, [delivery, validateForm]);
 
   const handleInputChange = (key: keyof typeof delivery, value: string) => {
-    setDelivery((prev) => {
-      const updated = { ...prev, [key]: value };
-      validateForm();
-      return updated;
-    });
+      const updatedDelivery = { ...delivery, [key]: value };
+      setDelivery(updatedDelivery);
+    
+      validateForm(updatedDelivery);
   };
 
   const handleModelChange = (model: string) => {
@@ -111,7 +116,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
         destinationSite: selectedProduct.destinationSite,
       }));
     }
-    validateForm();
+    validateForm(delivery);
   };
 
   const saveDelivery = async () => {
@@ -131,7 +136,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: "DeliveriesList" }],
+          routes: [{ name: "TabNavigator" }],
         })
       );
     } catch (error) {
@@ -156,12 +161,21 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
                 placeholder="Entrez le nom du client"
               />
               <View style={styles.buttonContainer}>
-                <Button mode="text" onPress={() => navigation.goBack()}>
+
+                <Button mode="text" onPress={() =>  
+                        navigation.dispatch(
+                          CommonActions.reset({
+                            index: 0,
+                            routes: [{ name: "TabScreens" }],
+                          })
+                        )
+                  }>
                   Précédent
                 </Button>
                 <Button mode="contained" onPress={() => setStep(2)} disabled={!isValid}>
-                  Suivant
+                    Suivant
                 </Button>
+
               </View>
             </>
           ) : (
@@ -186,7 +200,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
                     label={key}
                     value={delivery[key as keyof typeof delivery]}
                     onChangeText={(text: string) => handleInputChange(key as keyof typeof delivery, text)}
-                    placeholder={`Entrez ${key}`}
+                    placeholder={`Entrer ${key}`}
                   />
                 )
               )}
@@ -237,7 +251,8 @@ const TextInputField = React.memo(({ label, value, onChangeText, placeholder }: 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingTop: 16,
+    paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
   label: {
