@@ -9,13 +9,16 @@ import { TextInput, Button, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { RegisterForm, Role } from '../../types/User';
 import theme from '../../settings/Theme';
+import { observer } from 'mobx-react';
+import { useStores } from '../../stores';
 
 type RegisterRouteProps = {
   initialEmail?: string;
   initialPassword?: string;
 };
 
-const Register = () => {
+const Register = observer(() => {
+  const {userStore} = useStores();
   const route = useRoute();
   const { initialEmail, initialPassword } = route.params as RegisterRouteProps;
   const navigation = useNavigation<any>();
@@ -39,27 +42,26 @@ const Register = () => {
 
   const formValues = watch();
 
-  const handleCreateAccount = async (data: RegisterForm) => {
+  const handleCreateAccount = async (data: RegisterForm) => {  
     try {
+      // Create user with email and password
       const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, data.email, data.password);
       const userId = response.user.uid;
-
-      // Create or update the user's document in Firestore
-      await setDoc(doc(FIREBASE_DB, 'Users', userId), {
-        email: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        pseudo: data.pseudo,
-        role: data.role,
-        createdAt: new Date().toISOString(),
+  
+      // Save user data to the database using the userStore
+      await userStore.saveUserToDatabase(userId, data);
+  
+      // Log user into the app and save their token
+      await userStore.loginUser({
+        user: response.user,
+        token: await response.user.getIdToken(),
       });
-
-      Alert.alert('Success', 'Account created successfully!');
+  
+      // Navigate to main screen
       navigation.navigate('TabScreens');
     } catch (error: any) {
       console.error(error);
-      Alert.alert('Error', error.message);
+      Alert.alert('Registration Failed', error.message);
     }
   };
 
@@ -220,7 +222,7 @@ const Register = () => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+});
 
 export default Register;
 
