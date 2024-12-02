@@ -64,8 +64,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     return step.allowedRoles.includes(currentUserRole);
   };
 
- 
-  
   const [currentStep, setCurrentStep] = useState(
     stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
       ? stepsArray.length
@@ -242,28 +240,22 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           }
 
         </View>
-        {currentUserRole !== Role.secretariat && 
-          Object.keys(updatedDelivery).some(
-            (key) => updatedDelivery[key] !== delivery[key]
-          ) ? (
-            <><View>
+        {currentUserRole !== Role.secretariat ? 
+            <View>
               <Button
                 mode="contained"
                 style={styles.saveButton}
                 onPress={handleSave}
-                >
+              >
                 <View style={styles.buttonContent}>
                   <Icon source={"content-save"} size={22} color="white" />
                   <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
                 </View>
-                </Button>
-                <Button onPress={handleDelete}>Supprimer la livraison</Button>
+              </Button>
+              {currentUserRole == Role.vendeur ?  <Button onPress={handleDelete}>Supprimer la livraison</Button> : null}
             </View>
-          </>
-          ): null
+          : null
         }
-
-
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -1,9 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import theme from '../settings/Theme';
-import { Icon, IconButton } from 'react-native-paper';
+import { IconButton } from 'react-native-paper';
 import React from 'react';
 import Home from '../screens/Home/Home';
-import DeliveriesList from '../screens/Deliveries/DeliveriesList';
 import Products from '../screens/Products/Products';
 import DeliveryNavigator from './DeliveryNavigator';
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text } from 'react-native-paper';
-import { ScrollView, View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList } from "react-native";
 import { useStores } from "../../stores";
 import { Delivery } from "../../types/Delivery";
 import { Searchbar } from "react-native-paper";

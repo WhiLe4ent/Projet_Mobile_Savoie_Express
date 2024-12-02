@@ -24,9 +24,6 @@ const Navigations = observer(() => {
   const { userStore } = useStores(); // Accédez au store utilisateur
   const isLoggedIn = !!userStore.user; // Vérifiez si un utilisateur est connecté
 
-  const headerStyle = {
-    backgroundColor: 'transparent',
-  };
 
   const headerTitleStyle = {
     color: 'white',

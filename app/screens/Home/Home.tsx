@@ -4,6 +4,7 @@ import React from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useStores } from '../../stores';
 import { User } from '../../types/FirebaseUser';
+import { Role } from '../../types/User';
 
 const Home = () => {
   const { userStore } = useStores();
@@ -20,7 +21,7 @@ const Home = () => {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: 'Login' }], // Redirige vers l'écran de connexion
+          routes: [{ name: 'Login' }], 
         })
       );    } catch (e) {
       console.warn('Error during sign-out:', e);
@@ -39,13 +40,16 @@ const Home = () => {
 
         <Divider style={styles.divider} />
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={goToCreateDelivery}
-        >
-          Ajouter une livraison
-        </Button>
+        {(user?.role == Role.vendeur || user?.role == Role.rco ) ? 
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={goToCreateDelivery}
+          >
+            Ajouter une livraison
+          </Button> 
+        : null }
+        
 
         <Button
           mode="contained"

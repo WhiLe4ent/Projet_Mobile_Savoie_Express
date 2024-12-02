@@ -4,10 +4,15 @@ import CreateDelivery from '../screens/Deliveries/CreateDelivery';
 import DeliveryDetails from '../screens/Deliveries/DeliveryDetails';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './RootStackParamList';
+import { useStores } from '../stores';
 
 const DeliveryStack = createNativeStackNavigator<RootStackParamList>();
 
 const DeliveryNavigator = () => {
+
+    const { userStore } = useStores(); 
+    const role = userStore.user?.role; 
+
     return (
         <DeliveryStack.Navigator
             initialRouteName="DeliveriesList"
@@ -32,13 +37,15 @@ const DeliveryNavigator = () => {
                     title: 'Delivery Details',
                 }}
             />
-            <DeliveryStack.Screen
+            {role === 'Vendeur' || role === 'RCO' ? (
+                <DeliveryStack.Screen
                 name="CreateDelivery"
                 component={CreateDelivery}
                 options={{
                     title: 'Create New Delivery',
                 }}
-            />
+                />
+            ) : null}
         </DeliveryStack.Navigator>
     );
 };
