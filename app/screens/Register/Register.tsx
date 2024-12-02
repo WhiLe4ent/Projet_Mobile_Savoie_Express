@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Alert, ScrollView, Platform, TouchableOpacity } from 'react-native';
-import { FIREBASE_AUTH, FIREBASE_DB } from '../../../FirebaseConfig';
+import { FIREBASE_AUTH } from '../../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button, Text } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { RegisterForm, Role } from '../../types/User';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { RegisterForm } from '../../types/User';
 import theme from '../../settings/Theme';
+import { observer } from 'mobx-react';
+import { useStores } from '../../stores';
 
 type RegisterRouteProps = {
   initialEmail?: string;
   initialPassword?: string;
 };
 
-const Register = () => {
+const Register = observer(() => {
+  const {userStore} = useStores();
   const route = useRoute();
   const { initialEmail, initialPassword } = route.params as RegisterRouteProps;
   const navigation = useNavigation<any>();
@@ -39,27 +41,29 @@ const Register = () => {
 
   const formValues = watch();
 
-  const handleCreateAccount = async (data: RegisterForm) => {
+  const handleCreateAccount = async (data: RegisterForm) => {  
     try {
       const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, data.email, data.password);
       const userId = response.user.uid;
-
-      // Create or update the user's document in Firestore
-      await setDoc(doc(FIREBASE_DB, 'Users', userId), {
-        email: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        pseudo: data.pseudo,
-        role: data.role,
-        createdAt: new Date().toISOString(),
+  
+      await userStore.saveUserToDatabase(userId, data);
+      await userStore.loginUser({
+        user: response.user,
+        token: await response.user.getIdToken(),
       });
-
-      Alert.alert('Success', 'Account created successfully!');
-      navigation.navigate('Login');
+  
+      CommonActions.reset({
+        index: 0,
+        routes: [
+            {
+                name: 'TabScreens'
+            },
+        ],
+      })
+      navigation.navigate('TabScreens', { screen: 'Home'})
     } catch (error: any) {
       console.error(error);
-      Alert.alert('Error', error.message);
+      Alert.alert('Registration Failed', error.message);
     }
   };
 
@@ -71,6 +75,7 @@ const Register = () => {
       <ScrollView 
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Créer un compte</Text>
 
@@ -209,7 +214,7 @@ const Register = () => {
         />
         {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
-      {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
+        {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
         <View style={styles.buttonContainer}>
           <Button mode="contained" onPress={handleSubmit(handleCreateAccount)}>
@@ -219,7 +224,7 @@ const Register = () => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+});
 
 export default Register;
 

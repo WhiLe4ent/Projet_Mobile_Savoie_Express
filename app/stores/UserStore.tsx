@@ -3,8 +3,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootStore } from ".";
 import { User } from "../types/FirebaseUser";
 import { UserCredential } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { RegisterForm } from "../types/User";
 
 export default class UserStore {
   @observable user: User | null = null;
@@ -63,6 +64,24 @@ export default class UserStore {
     await this.setToken(data.token);
   }
 
+  @action
+  async saveUserToDatabase(userId: string, data: RegisterForm) {
+    try {
+      await setDoc(doc(FIREBASE_DB, 'Users', userId), {
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        pseudo: data.pseudo,
+        role: data.role,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("Error saving user to database:", error);
+      throw new Error("Failed to save user to the database.");
+    }
+  }
+  
   @computed
   get getToken() {
     return this.token;
