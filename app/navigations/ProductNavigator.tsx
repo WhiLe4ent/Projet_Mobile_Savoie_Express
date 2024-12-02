@@ -1,7 +1,4 @@
 import React from 'react';
-import DeliveriesList from '../screens/Deliveries/DeliveriesList';
-import CreateDelivery from '../screens/Deliveries/CreateDelivery';
-import DeliveryDetails from '../screens/Deliveries/DeliveryDetails';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './RootStackParamList';
 import { useStores } from '../stores';

@@ -41,6 +41,8 @@ const Login = observer(() => {
                 },
             ],
           })
+          navigation.navigate('TabScreens', { screen: 'Home'})
+
         }
       } catch (error: any) {
         console.error(error);

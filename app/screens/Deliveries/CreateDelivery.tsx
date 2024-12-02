@@ -136,7 +136,7 @@ useEffect(() => {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: "TabNavigator" }],
+          routes: [{ name: "TabScreens" }],
         })
       );
     } catch (error) {
@@ -161,7 +161,6 @@ useEffect(() => {
                 placeholder="Entrez le nom du client"
               />
               <View style={styles.buttonContainer}>
-
                 <Button mode="text" onPress={() =>  
                         navigation.dispatch(
                           CommonActions.reset({
@@ -193,17 +192,23 @@ useEffect(() => {
                 onChange={handleModelChange}
                 search
               />
-              {["reference", "numberId", "color", "physicalSite", "destinationSite", "notes"].map(
-                (key) => (
-                  <TextInputField
-                    key={key}
-                    label={key}
-                    value={delivery[key as keyof typeof delivery]}
-                    onChangeText={(text: string) => handleInputChange(key as keyof typeof delivery, text)}
-                    placeholder={`Entrer ${key}`}
-                  />
-                )
-              )}
+              {[
+                { label: "Référence*", key: "reference", placeholder: "Référence" },
+                { label: "Numéro ID*", key: "numberId", placeholder: "Numéro ID" },
+                { label: "Couleur*", key: "color", placeholder: "Couleur" },
+                { label: "Site présence physique*", key: "physicalSite", placeholder: "Site physique" },
+                { label: "Site destination*", key: "destinationSite", placeholder: "Site destination" },
+                { label: "Divers", key: "notes", placeholder: "Notes" }
+              ].map(({ label, key, placeholder }) => (
+                <TextInputField
+                  key={key}
+                  label={label}
+                  value={(delivery as any)[key as keyof typeof delivery]}
+                  onChangeText={(text: string) => handleInputChange(key as keyof typeof delivery, text)}
+                  placeholder={placeholder}
+                />
+              ))}
+
               <View style={styles.buttonContainer}>
                 <Button mode="text" onPress={() => setStep(1)}>
                   Précédent
