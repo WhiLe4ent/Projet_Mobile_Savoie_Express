@@ -30,18 +30,16 @@ const Navigations = observer(() => {
   };
 
   useEffect(() => {
-    // Vérifiez si l'utilisateur est connecté à chaque changement d'état
     if (!userStore.user) {
-      // Si l'utilisateur n'est pas connecté, redirigez vers la page Login
       navigationRef.navigate('Login');
     }
   }, [userStore.user]);
 
   return (
-    <NavigationContainer ref={navigationRef}> {/* Référence de navigation */}
+    <NavigationContainer ref={navigationRef}> 
       <SheetProvider>
         <Stack.Navigator
-          initialRouteName={isLoggedIn ? 'TabScreens' : 'Login'} // Redirige en fonction de l'état de connexion
+          initialRouteName={isLoggedIn ? 'TabScreens' : 'Login'}
           screenOptions={{
             headerStyle: { backgroundColor: theme.colors.primary },
             headerTitleStyle,

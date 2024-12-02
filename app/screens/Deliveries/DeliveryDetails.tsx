@@ -254,7 +254,13 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                   <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
                 </View>
               </Button>
-              {currentUserRole == Role.vendeur ?  <Button onPress={handleDelete}>Supprimer la livraison</Button> : null}
+              {currentUserRole == Role.vendeur ?  
+              <Button onPress={handleDelete} mode="contained" style={styles.saveButton}>
+                <View style={styles.buttonContent}>
+                  <Icon source={"content-save"} size={22} color="red" />
+                  <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Supprimer la livraison</Text>
+                </View>
+              </Button> : null}
             </View>
           : null
         }
