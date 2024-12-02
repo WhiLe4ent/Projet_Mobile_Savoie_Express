@@ -6,7 +6,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button, Text } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { RegisterForm, Role } from '../../types/User';
 import theme from '../../settings/Theme';
 import { observer } from 'mobx-react';
@@ -57,8 +57,15 @@ const Register = observer(() => {
         token: await response.user.getIdToken(),
       });
   
-      // Navigate to main screen
-      navigation.navigate('TabScreens');
+      CommonActions.reset({
+        index: 0,
+        routes: [
+            {
+                name: 'TabScreens'
+            },
+        ],
+      })
+      navigation.navigate('TabScreens', { screen: 'Home'})
     } catch (error: any) {
       console.error(error);
       Alert.alert('Registration Failed', error.message);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../../../FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { TextInput, Button, ActivityIndicator, Text, useTheme } from 'react-native-paper';
@@ -33,7 +33,15 @@ const Login = observer(() => {
         });
 
         if(response.user) {
-          navigation.navigate('TabScreens');
+          CommonActions.reset({
+            index: 0,
+            routes: [
+                {
+                    name: 'TabScreens'
+                },
+            ],
+          })
+          navigation.navigate('TabScreens', { screen: 'Home'})
         }
       } catch (error: any) {
         console.error(error);
