@@ -2,10 +2,9 @@ import { action, makeObservable } from "mobx";
 import { RootStore } from ".";
 import { FIREBASE_DB } from "../../FirebaseConfig";
 import { Product } from "../types/Product";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { Delivery } from "../types/Delivery";
 import { deleteDoc } from "firebase/firestore";
-
 
 export default class ApiStore {
   rootStore: RootStore;
@@ -79,6 +78,24 @@ export default class ApiStore {
       throw new Error("Failed to delete delivery");
     }
   }
-  
+
+  @action
+  public async getUsersByRole(role: string): Promise<{ email: string; name: string }[]> {
+    try {
+      const usersCollectionRef = collection(FIREBASE_DB, "Users");
+      const snapshot = await getDocs(usersCollectionRef);
+      const users = snapshot.docs
+        .map((doc) => doc.data())
+        .filter((user) => user.role.toLowerCase() === role.toLowerCase());
+
+      return users.map((user) => ({
+        email: user.email,
+        name: user.name,
+      }));
+    } catch (error) {
+      console.error("Error fetching users by role:", error);
+      throw new Error("Failed to fetch users by role");
+    }
+  }
 
 }

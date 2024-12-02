@@ -32,6 +32,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const theme = useTheme();
   const { userStore } = useStores(); 
   const { apiStore } = useStores();
+  const {emailStore } = useStores();
   const user = userStore.user; 
 
   interface Step {
@@ -76,17 +77,61 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     try {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
-      Alert.alert("Success","Modifications enregistrées !" )
+  
+      await sendEmailNotification();
+  
+      Alert.alert("Success", "Modifications enregistrées et email envoyé !");
+
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
           routes: [{ name: "DeliveriesList" }],
-        })  
-      );  
+        })
+      );
     } catch (error) {
-      console.error("Error saving delivery:", error);
-    }  
-  };  
+      console.error("Error saving delivery or sending email:", error);
+      Alert.alert("Erreur", "Une erreur est survenue lors de l'enregistrement ou de l'envoi de l'email.");
+    }
+  };
+  
+
+  const sendEmailNotification = async () => {
+    try {
+      const currentStepInfo = stepsArray[currentStep];
+      if (!currentStepInfo) {
+        Alert.alert("Erreur", "Étape actuelle introuvable.");
+        return;
+      }
+  
+      // Récupérer les rôles autorisés pour l'étape actuelle
+      const allowedRoles = currentStepInfo.allowedRoles;
+  
+      // Récupérer les utilisateurs correspondant aux rôles autorisés
+      const recipients: { email: string; name: string }[] = [];
+      for (const role of allowedRoles) {
+        const users = await apiStore.getUsersByRole(role);
+        recipients.push(...users);
+      }
+  
+      if (recipients.length === 0) {
+        Alert.alert("Aucun destinataire trouvé", "Aucun utilisateur ne correspond aux rôles requis.");
+        return;
+      }
+  
+      // Envoi des emails à tous les destinataires
+      for (const recipient of recipients) {
+        await emailStore.sendEmail(
+          recipient.email,
+          updatedDelivery.title,
+          delivery.title,
+          delivery.id
+        );
+      }
+    } catch (error) {
+      console.error("Error sending email notification:", error);
+      throw new Error("Email notification failed");
+    }
+  };
 
   const handleInputChange = (field: Steps, value: string | boolean | Date) => {
     setUpdatedDelivery((prev: any) => ({ ...prev, [field]: value }));
@@ -165,7 +210,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       </View>
     );
   };
-  
 
   const handleDelete = async () => {
     try {
@@ -181,7 +225,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       Alert.alert("Error", "Failed to delete delivery. Please try again.");
     }
   };
-  
 
   return (
     <KeyboardAvoidingView

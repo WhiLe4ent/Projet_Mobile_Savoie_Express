@@ -17,15 +17,22 @@
     "@react-navigation/native-stack": "^7.0.0",
     "@react-navigation/stack": "^7.0.3",
     "async-storage": "^0.1.0",
+    "axios": "^1.7.8",
+    "eslint": "^9.16.0",
     "expo": "^52.0.11",
+    "expo-linking": "^7.0.3",
     "expo-status-bar": "~2.0.0",
     "firebase": "^11.0.1",
+    "firebase-tools": "^13.27.0",
+    "lint": "^0.8.19",
     "mobx": "^6.13.5",
     "mobx-react": "^9.1.1",
+    "nodemailer": "^6.9.16",
     "react": "18.3.1",
     "react-hook-form": "^7.53.2",
     "react-native": "0.76.3",
     "react-native-actions-sheet": "^0.9.7",
+    "react-native-config": "^1.5.3",
     "react-native-date-picker": "^5.0.7",
     "react-native-element-dropdown": "^2.12.2",
     "react-native-gesture-handler": "~2.20.2",
@@ -34,9 +41,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@react-native-community/cli": "latest",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "~18.3.12",
-    "typescript": "^5.3.3",
-    "@react-native-community/cli": "latest"
+    "typescript": "^5.3.3"
   },
   "private": true
 }
