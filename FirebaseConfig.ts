@@ -22,36 +22,3 @@ export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
 
 export const FIREBASE_DB = getFirestore(FIREBASE_APP);
 
-
-// exports.handleStep3 = functions.firestore
-//   .document("deliveries/{deliveryId}")
-//   .onUpdate(async (change, context) => {
-//     const beforeData = change.before.data();
-//     const afterData = change.after.data();
-
-//     // Vérifie si la livraison passe à l'étape 3
-//     if (beforeData.status !== "Etape 3" && afterData.status === "Etape 3") {
-//       const transporter = nodemailer.createTransport({
-//         service: "gmail",
-//         auth: {
-//           user: "tonemail@gmail.com",
-//           pass: "tonmotdepasse",
-//         },
-//       });
-
-//       // Si "Présence" est NON, envoie un email à tous les RCO
-//       if (afterData.presence === "NON") {
-//         const rcoEmails = ["rco1@example.com", "rco2@example.com"];
-//         await transporter.sendMail({
-//           from: "tonemail@gmail.com",
-//           to: rcoEmails.join(","),
-//           subject: "Recherche produit sur site",
-//           text: `Le produit ${afterData.title} est introuvable sur le site ${afterData.physicalSite}. Merci de vérifier si le produit est présent chez vous.`,
-//         });
-//       } else {
-//         // Sinon, continue à l'étape 4
-//         const deliveryRef = admin.firestore().collection("deliveries").doc(context.params.deliveryId);
-//         await deliveryRef.update({ status: "Etape 4" });
-//       }
-//     }
-//   });

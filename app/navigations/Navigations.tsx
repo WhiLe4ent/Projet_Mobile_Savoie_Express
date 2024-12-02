@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { observer } from 'mobx-react';
@@ -13,17 +13,26 @@ import ProductDetails from '../screens/Products/ProductDetails';
 import { RootStackParamList } from './RootStackParamList';
 import theme from '../settings/Theme';
 import { createNavigationContainerRef } from '@react-navigation/native';
+import * as Linking from 'expo-linking';
 
-// Créez une référence de navigation globale
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
-
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const Navigations = observer(() => {
-  const { userStore } = useStores(); // Accédez au store utilisateur
-  const isLoggedIn = !!userStore.user; // Vérifiez si un utilisateur est connecté
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['savoieexpress://', 'https://savoieexpress.com'],
+  config: {
+    screens: {
+      Deliveries:  'DeliveriesList'
+    },
+  },
+};
 
+
+const Navigations = observer(() => {
+  const { userStore } = useStores();
+  const isLoggedIn = !!userStore.user;
+  const url = Linking.useURL();
 
   const headerTitleStyle = {
     color: 'white',
@@ -38,10 +47,10 @@ const Navigations = observer(() => {
   }, [userStore.user]);
 
   return (
-    <NavigationContainer ref={navigationRef}> {/* Référence de navigation */}
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <SheetProvider>
         <Stack.Navigator
-          initialRouteName={isLoggedIn ? 'TabScreens' : 'Login'} // Redirige en fonction de l'état de connexion
+          initialRouteName={isLoggedIn ? 'TabScreens' : 'Login'} 
           screenOptions={{
             headerStyle: { backgroundColor: theme.colors.primary },
             headerTitleStyle,

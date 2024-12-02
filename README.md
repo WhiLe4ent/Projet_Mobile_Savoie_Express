@@ -19,11 +19,30 @@ Pour installer les dépendances, exécutez la commande
 ```bash 
     npm install
 ```
+
  Ensuite, lancez le projet avec la commande 
  ```bash 
     npx expo start
  ``` 
 Cela démarrera l'application et vous pourrez accéder à la page de connexion pour tester l'authentification.
+
+Dans un autre terminal:
+ ```bash 
+    cd api
+ ``` 
+Copier-coller le contenu du fichier .env.example et créer un fichier .env
+Remplir ce fichier avec les bons données.
+
+*IMPORTANT !* Dans EMAIL_PASS c'est pas le mdp de votre email.
+Voici le lien d'explication:
+https://support.google.com/accounts/answer/185833?hl=en
+Cliquer sur : "Create and manage your app passwords"
+
+Demarrage du server pour l'envoi d'emails
+ ```bash 
+    npm start
+ ``` 
+
 
 ## Technologies utilisées
 
