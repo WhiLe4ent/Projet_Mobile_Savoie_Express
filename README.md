@@ -30,13 +30,13 @@ Dans un autre terminal:
  ```bash 
     cd api
  ``` 
-Copier-coller le contenu du fichier .env.example et créer un fichier .env
-Remplir ce fichier avec les bons données.
+Copier-coller le contenu du fichier .env.example et créer un fichier .env</br>
+Remplir ce fichier avec les bons données.</br>
 
-*IMPORTANT !* Dans EMAIL_PASS c'est pas le mdp de votre email.
+*IMPORTANT !* Dans EMAIL_PASS c'est pas le mdp de votre email.</br>
 Voici le lien d'explication:
-https://support.google.com/accounts/answer/185833?hl=en
-Cliquer sur : "Create and manage your app passwords"
+https://support.google.com/accounts/answer/185833?hl=en </br>
+Cliquer sur : "Create and manage your app passwords"</br>
 
 Demarrage du server pour l'envoi d'emails
  ```bash 
