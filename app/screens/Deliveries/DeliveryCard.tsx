@@ -22,14 +22,10 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
     navigation.navigate("DeliveryDetails", { delivery });
   };
 
-  const getStatus = () => {
-    let res: boolean;
-    delivery.deliveryDate ? res= true : res= false;
-
-    return res;
-  }
+  const getStatusColor = () => ((delivery.paymentReceived===true) ? "#0ec70b" : "#e00000");
 
   return (
+
     <TouchableOpacity onPress={handlePress} style={styles.card}>
       <View style={styles.details}>
         <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
@@ -50,12 +46,32 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
               day: 'numeric',
           })}
         </Text>
+        <Text 
+          style={[styles.badge, 
+              { color: 
+                  getStatusColor(), borderColor: getStatusColor()
+              }]} 
+        >           
+          {delivery.paymentReceived===true ? "PAYÉ" : "PAS PAYÉ"}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  badge: {
+    alignSelf: "flex-start",
+    marginTop: 5,
+    paddingVertical: 2,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    fontSize: 12,
+    color: "#fff",
+    borderRadius: 12,
+    overflow: "hidden",
+    textTransform: "uppercase",
+  },
   card: {
     padding: 10,
     height: 110,

@@ -30,7 +30,7 @@ export type Delivery = {
     qualityControlDate: string;
     packagingRequired: string;
     financingStatus: string;
-    paymentReceived: string;
+    paymentReceived: boolean;
     deliveryDate: string;
     packagingReady: string;
     

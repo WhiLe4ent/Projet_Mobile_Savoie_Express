@@ -94,7 +94,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     }
   };
   
-
   const sendEmailNotification = async () => {
     try {
       const currentStepInfo = stepsArray[currentStep];
@@ -103,7 +102,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         return;
       }
   
-      // Récupérer les rôles autorisés pour l'étape actuelle
       const allowedRoles = currentStepInfo.allowedRoles;
   
       // Récupérer les utilisateurs correspondant aux rôles autorisés
@@ -118,7 +116,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         return;
       }
   
-      // Envoi des emails à tous les destinataires
       for (const recipient of recipients) {
         await emailStore.sendEmail(
           recipient.email,
