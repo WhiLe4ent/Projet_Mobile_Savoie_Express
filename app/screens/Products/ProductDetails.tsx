@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { getStatusColor, Product } from '../../types/Product';
 import { useStores } from '../../stores';
-import { Button, useTheme } from 'react-native-paper';
+import { Button, useTheme, Text } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
 import { StackScreenProps } from '@react-navigation/stack';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigations/RootStackParamList';
 
 type ProductDetailsProps = StackScreenProps<RootStackParamList, 'ProductDetails'>;
-
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const { apiStore } = useStores();
@@ -18,7 +16,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const [product, setProduct] = useState<Product>();
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<any>();
-
   
   useEffect(() => {
     const fetchProduct = async () => {
@@ -36,14 +33,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
     
     fetchProduct();
   }, [productId, apiStore]);
-  
+
   const handlePress = () => {
-    // Naviguer vers l'écran des détails avec l'objet delivery
     console.log("product details : " + JSON.stringify(product))
     if (product)
     navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} });
 
   };
+
 
   if (loading) {
     return (
@@ -63,17 +60,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <ScrollView 
+      contentContainerStyle={styles.scrollContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.card}>
-        <Image source={{ uri: product.photo }} style={styles.productImage} />
+        <Image source={{ uri: product.photo }} style={styles.productImage} resizeMode={"contain"}
+        />
         <Text style={styles.productTitle}>{product.model}</Text>
         <View style={styles.productInfoContainer}>
-          <Text style={styles.productInfo}>Color: {product.color}</Text>
-          <Text style={styles.productInfo}>Size: {product.size} cm</Text>
-          <Text style={styles.productInfo}>Quantity: {product.quantity}</Text>
-          <Text style={styles.productInfo}>Current Site: {product.currentSite}</Text>
+          <Text style={styles.productInfo}>Couleur: {product.color}</Text>
+          <Text style={styles.productInfo}>Taille: {product.size} cm</Text>
+          <Text style={styles.productInfo}>Quantité: {product.quantity}</Text>
+          <Text style={styles.productInfo}>Site actuel: {product.currentSite}</Text>
           {product.destinationSite && (
-            <Text style={styles.productInfo}>Destination Site: {product.destinationSite}</Text>
+            <Text style={styles.productInfo}>Site destination: {product.destinationSite}</Text>
           )}
           <Text 
             style={[styles.badge, 
@@ -91,9 +92,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
             mode="contained" 
             style={styles.button} 
             icon="cart"
-            onPress={handlePress}
+            onPress={() => navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} })}
           >
-            Order now
+            Commander maintenant
           </Button>
         </View>
 
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
-    padding: 20,
+    padding: 15,
     width: '100%',
     maxWidth: 400,
     marginVertical: 20,
@@ -149,13 +150,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 220,
     marginBottom: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'white',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
-  
   productTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   buttonContainer: {
-    marginTop: 100,
+    marginVertical: 30,
     alignItems: 'center',
     width: '100%'
   },

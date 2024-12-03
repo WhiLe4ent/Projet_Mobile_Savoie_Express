@@ -19,21 +19,23 @@ const ProductNavigator = () => {
                 headerStyle: { backgroundColor: '#006CFF' },
                 headerTitleStyle: { color: 'white' },
                 headerBackTitle: '',
-                headerTintColor: '#FFFFFF'
+                headerTintColor: '#FFFFFF',
+                headerBackButtonDisplayMode: "minimal"
+
             }}
         >
             <ProducdStack.Screen
                 name="Products"
                 component={Products}
                 options={{
-                    title: 'All Products'                
+                    title: 'Tous les produits'                
                 }}
             />
             <ProducdStack.Screen
                 name="ProductDetails"
                 component={ProductDetails}
                 options={{
-                    title: 'Delivery Details',
+                    title: 'Détails du produit',
                 }}
             />
         </ProducdStack.Navigator>

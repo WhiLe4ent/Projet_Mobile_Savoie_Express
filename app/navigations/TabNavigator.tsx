@@ -3,7 +3,6 @@ import theme from '../settings/Theme';
 import { IconButton } from 'react-native-paper';
 import React from 'react';
 import Home from '../screens/Home/Home';
-import Products from '../screens/Products/Products';
 import DeliveryNavigator from './DeliveryNavigator';
 import ProductNavigator from './ProductNavigator';
 
@@ -14,7 +13,7 @@ export type TabStackNavigationList = {
 };
 
 const headerStyle = {
-    backgroundColor: '#006CFF'
+    backgroundColor: theme.colors.primary
 };
 
 const headerTitleStyle = {
@@ -29,7 +28,8 @@ const TabNavigator = () =>
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarActiveTintColor: theme.colors.primary,
-                tabBarIcon: () => 
+                tabBarInactiveTintColor: '#6e6e6e',
+                tabBarIcon: ({focused, color}) => 
                 {
                     let iconName = '';
 
@@ -38,7 +38,7 @@ const TabNavigator = () =>
                         case 'Home':
                             iconName = 'home'
                             break;
-                        case 'Deliveries':
+                        case 'Livraisons':
                             iconName = 'truck-delivery'
                             break;
                         case 'ProductNavigator':
@@ -50,6 +50,7 @@ const TabNavigator = () =>
                         <IconButton
                             icon={iconName}
                             size={24}
+                            iconColor={focused ? theme.colors.primary : '#6e6e6e'}
                         />
                     );
                 },
@@ -69,7 +70,7 @@ const TabNavigator = () =>
                 }}
             />
             <Tab.Screen 
-                name='Deliveries' 
+                name='Livraisons' 
                 component={DeliveryNavigator} 
                 options={{}}
             />
@@ -77,8 +78,8 @@ const TabNavigator = () =>
                 name='ProductNavigator' 
                 component={ProductNavigator} 
                 options={{
-                    tabBarLabel: 'Products',
-                    headerTitle: 'Products',
+                    tabBarLabel: 'Produits',
+                    headerTitle: 'Produits',
                 }}
             />
         </Tab.Navigator>

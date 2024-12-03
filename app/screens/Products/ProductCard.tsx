@@ -1,6 +1,8 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Text } from "react-native-paper";
 import { getStatusColor, Product, ProductStatus } from "../../types/Product";
+import { useNavigation } from "@react-navigation/native";
 
 type ProductCardProps = {
   product: Product;
@@ -8,13 +10,18 @@ type ProductCardProps = {
 
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+    const navigation = useNavigation<any>();
+
+    const handleProductClick = (productId: string) => {
+        navigation.navigate('ProductDetails', { productId });
+    };  
 
     return (
-        <View style={styles.card}>
+        <TouchableOpacity onPress={() => handleProductClick(product.id)} style={styles.card}>
             <Image
-            source={{ uri: product.photo }}
-            style={styles.image}
-            resizeMode="cover"
+                source={{ uri: product.photo }}
+                style={styles.image}
+                resizeMode={"cover"}
             />
             <View style={styles.details}>
                 <Text 
@@ -22,8 +29,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                 >{product.model}</Text>
-                <Text style={styles.attribute}>Color: {product.color}</Text>
-                <Text style={styles.attribute}>Current Site: {product.currentSite}</Text>
+                <Text 
+                    style={styles.attribute}
+                    numberOfLines={1}
+                >
+                    Couleur: {product.color}
+                </Text>
+                <Text 
+                    style={styles.attribute}
+                    numberOfLines={1}
+                >
+                    Site actuel: {product.currentSite}
+                </Text>
                 <Text 
                     style={[styles.badge, 
                         { backgroundColor: 
@@ -33,7 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     {product.status}
                 </Text>
             </View>
-        </View>
+        </TouchableOpacity>
       );
     };
     
@@ -42,11 +59,13 @@ const styles = StyleSheet.create({
         padding: 5,
         height: 120,
         flexDirection: "row",
-        backgroundColor: "#fff",
+        backgroundColor: '#FAFAFA',
         borderRadius: 8,
+        borderColor: "#E0E0E0",
+        borderWidth: 1,
         marginBottom: 16,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,

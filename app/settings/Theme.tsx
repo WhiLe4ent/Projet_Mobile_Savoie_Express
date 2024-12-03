@@ -33,7 +33,7 @@ const theme = {
     disabled: '#A0A0A0',
     placeholder: '#C7C7CD',
     backdrop: '#00000066',
-    fontConfig: fontConfig
+    fontConfig: fontConfig,
   },
   roundness: 8,
 };
