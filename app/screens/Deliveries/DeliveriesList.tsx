@@ -35,7 +35,7 @@ const DeliveriesList = () => {
       style={styles.container}
     >
       <Searchbar
-        placeholder="Search by title"
+        placeholder="Chercher par titre"
         onChangeText={setSearchQuery}
         value={searchQuery}
         style={styles.searchbar}
@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingRight: 16,
     paddingLeft: 16,
+    backgroundColor: theme.colors.surface
   },
   searchbar: {
     marginBottom: 16,

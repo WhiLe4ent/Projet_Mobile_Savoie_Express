@@ -19,7 +19,9 @@ const ProductNavigator = () => {
                 headerStyle: { backgroundColor: '#006CFF' },
                 headerTitleStyle: { color: 'white' },
                 headerBackTitle: '',
-                headerTintColor: '#FFFFFF'
+                headerTintColor: '#FFFFFF',
+                headerBackButtonDisplayMode: "minimal"
+
             }}
         >
             <ProducdStack.Screen
@@ -34,7 +36,6 @@ const ProductNavigator = () => {
                 component={ProductDetails}
                 options={{
                     title: 'Détails du produit',
-                    headerBackTitle: '',
                 }}
             />
         </ProducdStack.Navigator>

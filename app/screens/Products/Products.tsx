@@ -79,9 +79,9 @@ const Products = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 16,
+    paddingTop: 16,
     paddingHorizontal: 16,
-    backgroundColor: "white",
+    backgroundColor: theme.colors.surface,
   },
   searchbar: {
     marginBottom: 16,

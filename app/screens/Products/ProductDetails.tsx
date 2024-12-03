@@ -16,7 +16,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const [product, setProduct] = useState<Product>();
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<any>();
-
   
   useEffect(() => {
     const fetchProduct = async () => {
@@ -34,6 +33,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
     
     fetchProduct();
   }, [productId, apiStore]);
+
+  const handlePress = () => {
+    console.log("product details : " + JSON.stringify(product))
+    if (product)
+    navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} });
+
+  };
+
 
   if (loading) {
     return (

@@ -54,6 +54,7 @@ const Navigations = observer(() => {
             headerTitleStyle,
             headerBackTitle: '',
             headerTintColor: '#FFFFFF',
+            headerBackButtonDisplayMode: "minimal"
           }}
         >
           <Stack.Screen

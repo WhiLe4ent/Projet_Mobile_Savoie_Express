@@ -13,7 +13,7 @@ export type TabStackNavigationList = {
 };
 
 const headerStyle = {
-    backgroundColor: '#006CFF'
+    backgroundColor: theme.colors.primary
 };
 
 const headerTitleStyle = {

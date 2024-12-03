@@ -20,7 +20,8 @@ const DeliveryNavigator = () => {
                 headerStyle: { backgroundColor: '#006CFF' },
                 headerTitleStyle: { color: 'white' },
                 headerBackTitle: '',
-                headerTintColor: '#FFFFFF'
+                headerTintColor: '#FFFFFF',
+                headerBackButtonDisplayMode: "minimal"
             }}
         >
             <DeliveryStack.Screen
@@ -37,7 +38,7 @@ const DeliveryNavigator = () => {
                     title: 'Détails de livraison',
                 }}
             />
-            {role === 'Vendeur' || role === 'RCO' ? (
+            {role === 'Vendeur' || role === 'RCO' || role == 'rco' ? (
                 <DeliveryStack.Screen
                 name="CreateDelivery"
                 component={CreateDelivery}
