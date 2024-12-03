@@ -22,19 +22,32 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({ delivery }) => {
     navigation.navigate("DeliveryDetails", { delivery });
   };
 
+  const getStatus = () => {
+    let res: boolean;
+    delivery.deliveryDate ? res= true : res= false;
+
+    return res;
+  }
+
   return (
     <TouchableOpacity onPress={handlePress} style={styles.card}>
       <View style={styles.details}>
         <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
           {delivery.title}
         </Text>
-        <Text style={styles.attribute}>Model: {delivery.model}</Text>
-        <Text style={styles.attribute}>Description: {delivery.notes}</Text>
+        <Text 
+          style={styles.attribute}
+          numberOfLines={1}
+        >
+          <Text style={{fontWeight: "bold"}}>Model: </Text> 
+          {delivery.model}
+        </Text>
         <Text style={styles.attribute}>
-          Date: {new Date(delivery.createdAt).toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+          <Text style={{fontWeight: "bold"}}>Création: </Text> 
+            {new Date(delivery.createdAt).toLocaleDateString('fr-FR', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
           })}
         </Text>
       </View>

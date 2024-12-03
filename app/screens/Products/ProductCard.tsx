@@ -56,7 +56,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     
 const styles = StyleSheet.create({
     card: {
-        padding: 5,
         height: 120,
         flexDirection: "row",
         backgroundColor: '#FAFAFA',
@@ -72,8 +71,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     image: {
-        width: 100,
-        height: 100,
+        width: 118,
         aspectRatio: 1/1,
         marginRight: 16,
         borderRadius: 8,
