@@ -44,9 +44,11 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     notes: "",
   };
 
-  const { control, handleSubmit, setValue, formState: { errors }, trigger } = useForm<DeliveryForm>({
+  const { control, handleSubmit, setValue, formState: { errors }, trigger, watch, reset } = useForm<DeliveryForm>({
     defaultValues,
   });
+
+  const formValues = watch()
 
   const deliveryTypes = [
     { label: "Type A", value: "A" },
@@ -57,7 +59,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const fetchedProducts = await apiStore.getProducts();
+        const fetchedProducts = await apiStore.getProducts() as Product[]
         setProducts(fetchedProducts);
       } catch (error) {
         Alert.alert("Erreur", "Impossible de charger les produits.");
@@ -106,6 +108,18 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     if (currentStep === 1 && !stepsCompleted) {
       Alert.alert("Erreur", "Veuillez valider le titre avant de continuer.");
       return;
+    }
+    if(currentStep===2) {
+      const selectedProduct = products.filter(product => product.model === formValues.model)[0]
+      reset({
+        model: selectedProduct.model,
+        reference: selectedProduct.reference,
+        numberId: selectedProduct.size,
+        color: selectedProduct.color,
+        physicalSite: selectedProduct.currentSite,
+        destinationSite: selectedProduct.destinationSite,
+        notes: "",
+      })
     }
     setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
@@ -161,6 +175,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
               render={({ field: { onChange, value } }) => (
                 <DropdownField
                   label="Type*"
+                  placeholder="Choisissez un type"
                   data={deliveryTypes}
                   value={value}
                   onChange={onChange}
@@ -254,12 +269,13 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     </View>
   );
 
-  const DropdownField = ({ label, data, value, onChange, error }: any) => (
+  const DropdownField = ({ label, data, value, onChange, error, placeholder }: any) => (
     <View>
       <Text style={styles.label}>{label}</Text>
       <Dropdown
         style={[styles.dropdown, error && { borderColor: "red" }]}
         data={data}
+        placeholder={placeholder}
         labelField="label"
         valueField="value"
         value={value}

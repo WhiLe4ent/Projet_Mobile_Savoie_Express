@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Modal,
   Switch,
   ScrollView,
   KeyboardAvoidingView,
@@ -30,9 +31,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const [activeDatePicker, setActiveDatePicker] = useState<string | null>(null);
   const navigation = useNavigation<any>();
   const theme = useTheme();
-  const { userStore } = useStores(); 
-  const { apiStore } = useStores();
-  const {emailStore } = useStores();
+  const { userStore, apiStore, emailStore } = useStores(); 
+  const [openModal, setOpenModal] = useState<boolean>(false);
   const user = userStore.user; 
 
   interface Step {
@@ -242,16 +242,17 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             ]}
           />
         </View>
-          {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
-          {showDatePicker && (
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onDateChange}
-                
-              />
-            )}
+
+        {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
+        {showDatePicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={onDateChange}     
+            />
+        )}
+
         <View style={styles.buttonContainer}>
           {currentUserRole !== Role.secretariat && (
             <View style={[styles.buttonBackContainer]}>
@@ -282,28 +283,63 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           }
 
         </View>
-        {currentUserRole !== Role.secretariat ? 
-            <View>
-              <Button
-                mode="contained"
-                style={styles.saveButton}
-                onPress={handleSave}
+
+        {currentUserRole !== Role.secretariat &&
+          <View>
+            <Button
+              mode="contained"
+              style={styles.saveButton}
+              onPress={handleSave}
+            >
+              <View style={styles.buttonContent}>
+                <Icon source={"content-save"} size={22} color="white" />
+                <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
+              </View>
+            </Button>
+
+            {currentUserRole == Role.vendeur &&  
+              <Button 
+                onPress={()=>setOpenModal(true)} 
+                mode="outlined"
+                style={styles.cancelButton}
               >
-                <View style={styles.buttonContent}>
-                  <Icon source={"content-save"} size={22} color="white" />
-                  <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
-                </View>
+                  <View style={styles.buttonContent}>
+                    <Icon source={"delete"} size={22} color={theme.colors.primary}/>
+                    <Text style={[styles.buttonText, { ...theme.fonts.labelLarge, color: theme.colors.primary }]}>
+                      Supprimer la livraison
+                    </Text>
+                  </View>
               </Button>
-              {currentUserRole == Role.vendeur ?  
-              <Button onPress={handleDelete} mode="contained" style={styles.saveButton}>
-                <View style={styles.buttonContent}>
-                  <Icon source={"content-save"} size={22} color="red" />
-                  <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Supprimer la livraison</Text>
+            }
+            <Modal
+              visible={openModal}
+              transparent
+              animationType="fade"
+              onRequestClose={()=> setOpenModal(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContainer}>
+                  <Text style={styles.modalTitle}>Êtes-vous sûr de vouloir supprimer?</Text>
+                  <Button mode="contained" 
+                    onPress={handleDelete} 
+                    style={styles.modalButton}
+                  >
+                    Supprimer
+                  </Button>
+                  <Button 
+                    mode="outlined"  
+                    onPress={()=> setOpenModal(false)} 
+                    style={styles.canelDeleteButton}>
+                      Annuler
+                  </Button>
                 </View>
-              </Button> : null}
-            </View>
-          : null
+              </View>
+            </Modal>
+          </View>
+
+
         }
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -314,6 +350,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 16,
     backgroundColor: "#f9f9f9",
+    paddingBottom: 20
   },
   progressBarContainer: {
     height: 8,
@@ -349,6 +386,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  modalButton: {
+    marginVertical: 10,
+    width: "100%",
+  },
+  cancelButton: {
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: theme.colors.accent,
   },
   label: {
     fontSize: 16,
@@ -393,9 +457,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   saveButton: {
+    marginTop: 50,
     alignSelf: "center",
     marginVertical: 10,
     backgroundColor: '#007BFF',
+  },
+  canelDeleteButton: {
+    marginTop: 10,
+    alignSelf: "center",
+    borderColor: "#FF6347",
   },
   buttonContent: {
     flexDirection: "row",
