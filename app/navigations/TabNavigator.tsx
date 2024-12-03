@@ -3,7 +3,6 @@ import theme from '../settings/Theme';
 import { IconButton } from 'react-native-paper';
 import React from 'react';
 import Home from '../screens/Home/Home';
-import Products from '../screens/Products/Products';
 import DeliveryNavigator from './DeliveryNavigator';
 import ProductNavigator from './ProductNavigator';
 
@@ -29,7 +28,8 @@ const TabNavigator = () =>
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarActiveTintColor: theme.colors.primary,
-                tabBarIcon: () => 
+                tabBarInactiveTintColor: '#6e6e6e',
+                tabBarIcon: ({focused, color}) => 
                 {
                     let iconName = '';
 
@@ -50,6 +50,7 @@ const TabNavigator = () =>
                         <IconButton
                             icon={iconName}
                             size={24}
+                            iconColor={focused ? theme.colors.primary : '#6e6e6e'}
                         />
                     );
                 },

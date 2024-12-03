@@ -43,7 +43,7 @@ const DeliveriesList = () => {
           textAlignVertical: "center",
           paddingBottom: 8
         }}
-        placeholderTextColor={theme.colors.placeholder} 
+        placeholderTextColor={theme.colors.disabled} 
       />
       
       <FlatList

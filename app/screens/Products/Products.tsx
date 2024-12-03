@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Text, ScrollView, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, FlatList } from "react-native";
 import { useStores } from "../../stores";
 import { Product } from "../../types/Product";
 import { ActivityIndicator, Searchbar } from "react-native-paper";
 import ProductCard from "./ProductCard";
 import theme from "../../settings/Theme";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
 
 const Products = () => {
   const { apiStore } = useStores();
@@ -14,7 +12,6 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation<any>();
 
   const getProducts = async (): Promise<void> => {
     try {
@@ -28,9 +25,6 @@ const Products = () => {
     }
   };
 
-  const handleProductClick = (productId: string) => {
-    navigation.navigate('ProductDetails', { productId });
-  };  
 
   useEffect(() => {
     getProducts();
@@ -63,7 +57,7 @@ const Products = () => {
           textAlignVertical: "center",
           paddingBottom: 8
         }}
-        placeholderTextColor={theme.colors.placeholder}
+        placeholderTextColor={theme.colors.disabled}
       />
 
       {loading ? (
@@ -72,13 +66,11 @@ const Products = () => {
           <Text style={styles.loadingText}>Fetching Products...</Text>
         </View>
       ) : (
-        <ScrollView>
-          {filteredProducts.map(product => (
-            <TouchableOpacity key={product.id} onPress={() => handleProductClick(product.id)}>
-              <ProductCard product={product} />
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <FlatList
+          data={filteredProducts}
+          renderItem={({ item }) => <ProductCard product={item} />} 
+          showsVerticalScrollIndicator={false}
+        />
       )}
 
     </View>
@@ -88,8 +80,9 @@ const Products = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#f0f4f7",
+    marginTop: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "white",
   },
   searchbar: {
     marginBottom: 16,
