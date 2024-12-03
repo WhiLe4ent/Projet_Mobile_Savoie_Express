@@ -33,13 +33,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     style={styles.attribute}
                     numberOfLines={1}
                 >
-                    Color: {product.color}
+                    Couleur: {product.color}
                 </Text>
                 <Text 
                     style={styles.attribute}
                     numberOfLines={1}
                 >
-                    Current Site: {product.currentSite}
+                    Site actuel: {product.currentSite}
                 </Text>
                 <Text 
                     style={[styles.badge, 

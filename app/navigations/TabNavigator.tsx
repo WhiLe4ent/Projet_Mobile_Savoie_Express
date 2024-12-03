@@ -38,7 +38,7 @@ const TabNavigator = () =>
                         case 'Home':
                             iconName = 'home'
                             break;
-                        case 'Deliveries':
+                        case 'Livraisons':
                             iconName = 'truck-delivery'
                             break;
                         case 'ProductNavigator':
@@ -70,7 +70,7 @@ const TabNavigator = () =>
                 }}
             />
             <Tab.Screen 
-                name='Deliveries' 
+                name='Livraisons' 
                 component={DeliveryNavigator} 
                 options={{}}
             />
@@ -78,8 +78,8 @@ const TabNavigator = () =>
                 name='ProductNavigator' 
                 component={ProductNavigator} 
                 options={{
-                    tabBarLabel: 'Products',
-                    headerTitle: 'Products',
+                    tabBarLabel: 'Produits',
+                    headerTitle: 'Produits',
                 }}
             />
         </Tab.Navigator>

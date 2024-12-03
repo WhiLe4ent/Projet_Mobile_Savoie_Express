@@ -62,12 +62,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
         />
         <Text style={styles.productTitle}>{product.model}</Text>
         <View style={styles.productInfoContainer}>
-          <Text style={styles.productInfo}>Color: {product.color}</Text>
-          <Text style={styles.productInfo}>Size: {product.size} cm</Text>
-          <Text style={styles.productInfo}>Quantity: {product.quantity}</Text>
-          <Text style={styles.productInfo}>Current Site: {product.currentSite}</Text>
+          <Text style={styles.productInfo}>Couleur: {product.color}</Text>
+          <Text style={styles.productInfo}>Taille: {product.size} cm</Text>
+          <Text style={styles.productInfo}>Quantité: {product.quantity}</Text>
+          <Text style={styles.productInfo}>Site actuel: {product.currentSite}</Text>
           {product.destinationSite && (
-            <Text style={styles.productInfo}>Destination Site: {product.destinationSite}</Text>
+            <Text style={styles.productInfo}>Site destination: {product.destinationSite}</Text>
           )}
           <Text 
             style={[styles.badge, 
@@ -87,7 +87,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
             icon="cart"
             onPress={() => navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} })}
           >
-            Order now
+            Commander maintenant
           </Button>
         </View>
 

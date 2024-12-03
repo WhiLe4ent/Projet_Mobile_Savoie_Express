@@ -27,14 +27,14 @@ const DeliveryNavigator = () => {
                 name="DeliveriesList"
                 component={DeliveriesList}
                 options={{
-                    title: 'All Deliveries'                
+                    title: 'Toutes les livraisons'                
                 }}
             />
             <DeliveryStack.Screen
                 name="DeliveryDetails"
                 component={DeliveryDetails}
                 options={{
-                    title: 'Delivery Details',
+                    title: 'Détails de livraison',
                 }}
             />
             {role === 'Vendeur' || role === 'RCO' ? (
@@ -42,7 +42,7 @@ const DeliveryNavigator = () => {
                 name="CreateDelivery"
                 component={CreateDelivery}
                 options={{
-                    title: 'Create New Delivery',
+                    title: 'Créer une nouvelle livraison',
                 }}
                 />
             ) : null}

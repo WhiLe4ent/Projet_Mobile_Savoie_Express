@@ -25,7 +25,6 @@ const Products = () => {
     }
   };
 
-
   useEffect(() => {
     getProducts();
   }, []);
@@ -49,7 +48,7 @@ const Products = () => {
   return (
     <View style={styles.container}>
       <Searchbar
-        placeholder="Search"
+        placeholder="Chercher par nom"
         onChangeText={setSearchQuery}
         value={searchQuery}
         style={styles.searchbar}
@@ -63,7 +62,7 @@ const Products = () => {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={styles.loadingText}>Fetching Products...</Text>
+          <Text style={styles.loadingText}>Recherche des produits...</Text>
         </View>
       ) : (
         <FlatList

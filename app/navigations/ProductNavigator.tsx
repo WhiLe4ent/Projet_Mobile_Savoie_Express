@@ -26,14 +26,15 @@ const ProductNavigator = () => {
                 name="Products"
                 component={Products}
                 options={{
-                    title: 'All Products'                
+                    title: 'Tous les produits'                
                 }}
             />
             <ProducdStack.Screen
                 name="ProductDetails"
                 component={ProductDetails}
                 options={{
-                    title: 'Delivery Details',
+                    title: 'Détails du produit',
+                    headerBackTitle: '',
                 }}
             />
         </ProducdStack.Navigator>
