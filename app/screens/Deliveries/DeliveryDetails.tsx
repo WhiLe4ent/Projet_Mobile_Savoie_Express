@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
-import { Text, Button, Icon, useTheme, IconButton} from "react-native-paper";
+import { Text, Button, Icon, useTheme, IconButton, ActivityIndicator} from "react-native-paper";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -35,6 +35,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const { userStore, apiStore, emailStore } = useStores(); 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const user = userStore.user; 
+  const [loading, setLoading] = useState<boolean>(false);
 
   interface Step {
     label: string;
@@ -56,6 +57,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean", allowedRoles: [Role.financialManager, Role.rco, Role.rco] },
     { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
     { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
+
   ];
 
   if(!user) return null;
@@ -83,6 +85,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   );
   
   const handleSave = async () => {
+    setLoading(true);
     try {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
@@ -100,6 +103,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     } catch (error) {
       console.error("Error saving delivery or sending email:", error);
       Alert.alert("Erreur", "Une erreur est survenue lors de l'enregistrement ou de l'envoi de l'email.");
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -212,7 +217,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             <Text style={styles.labelDate}>{step.label}</Text>
             
             <TouchableOpacity
-              onPress={() => setActiveDatePicker(step.field)}
+              onPress={() => activeDatePicker ? setActiveDatePicker(null) : setActiveDatePicker(step.field)}
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
@@ -270,7 +275,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     return user.role && step.allowedRoles.includes(user.role);
   };
   
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -286,101 +290,112 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         />
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.deliveryTitle}>
-          Livraison "{delivery.title}"
-        </Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={styles.loadingText}>Envoi des mails en cours...</Text>
+        </View>
+        ) : (
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.deliveryTitle}>
+            Livraison "{delivery.title}"
+          </Text>
 
-        {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
-        {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={onDateChange}     
-            />
-        )}
-
-        <View style={styles.buttonContainer}>
-          {currentUserRole !== Role.secretariat && (
-            <View style={[styles.buttonArrowContainer]}>
-              <IconButton
-                icon={"arrow-left"}
-                iconColor={theme.colors.primary}
-                size={22}
-                disabled={currentStep === 0}
-                onPress={() => setCurrentStep((prev) => prev - 1)}
+          {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
+          {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onDateChange}     
               />
-            </View>
           )}
 
-          {currentUserRole !== Role.secretariat && (
+          <View style={styles.buttonContainer}>
+            {currentUserRole !== Role.secretariat && (
               <View style={[styles.buttonArrowContainer]}>
                 <IconButton
-                  icon={"arrow-right"}
+                  icon={"arrow-left"}
                   iconColor={theme.colors.primary}
                   size={22}
-                  disabled={
-                    (currentStep >= stepsArray.length - 1) || 
-                    (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
-                  }
-                  onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
+                  disabled={currentStep === 0}
+                  onPress={() => setCurrentStep((prev) => prev - 1)}
                 />
               </View>
-              )
-          }
+            )}
 
-        </View>
+            {currentUserRole !== Role.secretariat && (
+                <View style={[styles.buttonArrowContainer]}>
+                  <IconButton
+                    icon={"arrow-right"}
+                    iconColor={theme.colors.primary}
+                    size={22}
+                    disabled={
+                      (currentStep >=stepsArray.length - 1) 
+                      || (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+                      || (currentStep===1 && delivery.presence===false)
+                      || !isUserAllowedToModifyStep(stepsArray[currentStep])
 
-        {currentUserRole !== Role.secretariat &&
-          <View>
-            {currentUserRole == Role.vendeur &&  
-              <Button 
-                onPress={()=>setOpenModal(true)} 
-                mode="outlined"
-                style={styles.cancelButton}
-              >
-                  <View style={styles.buttonContent}>
-                    <Icon source={"delete"} size={22} color={theme.colors.primary}/>
-                    <Text style={[styles.buttonText, { ...theme.fonts.labelLarge, color: theme.colors.primary }]}>
-                      Supprimer
-                    </Text>
-                  </View>
-              </Button>
+                    }
+                    onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
+                  />
+                </View>
+                )
             }
 
-            <Modal
-              visible={openModal}
-              transparent
-              animationType="fade"
-              onRequestClose={()=> setOpenModal(false)}
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalContainer}>
-                  <Text style={styles.modalTitle}>Êtes-vous sûr de vouloir supprimer?</Text>
-                  <Button mode="contained" 
-                    onPress={handleDelete} 
-                    style={styles.modalButton}
-                  >
-                    Supprimer
-                  </Button>
-                  <Button 
-                    mode="outlined"  
-                    onPress={()=> setOpenModal(false)} 
-                    style={styles.canelDeleteButton}>
-                      Annuler
-                  </Button>
-                </View>
-              </View>
-            </Modal>
-
           </View>
-        }
-      </ScrollView>
+
+          {currentUserRole !== Role.secretariat &&
+            <View>
+              {currentUserRole == Role.vendeur &&  
+                <Button 
+                  onPress={()=>setOpenModal(true)} 
+                  mode="outlined"
+                  style={styles.cancelButton}
+                >
+                    <View style={styles.buttonContent}>
+                      <Icon source={"delete"} size={22} color={theme.colors.primary}/>
+                      <Text style={[styles.buttonText, { ...theme.fonts.labelLarge, color: theme.colors.primary }]}>
+                        Supprimer
+                      </Text>
+                    </View>
+                </Button>
+              }
+
+              <Modal
+                visible={openModal}
+                transparent
+                animationType="fade"
+                onRequestClose={()=> setOpenModal(false)}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContainer}>
+                    <Text style={styles.modalTitle}>Êtes-vous sûr de vouloir supprimer?</Text>
+                    <Button mode="contained" 
+                      onPress={handleDelete} 
+                      style={styles.modalButton}
+                    >
+                      Supprimer
+                    </Button>
+                    <Button 
+                      mode="outlined"  
+                      onPress={()=> setOpenModal(false)} 
+                      style={styles.canelDeleteButton}>
+                        Annuler
+                    </Button>
+                  </View>
+                </View>
+              </Modal>
+
+            </View>
+          }
+          
+        </ScrollView> 
+      )}
 
       {currentUserRole !== Role.secretariat && (
         <View style={[styles.buttonSaveContainer, styles.floatingButton]}>
@@ -392,7 +407,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           />
         </View>
       )}
-    
     </KeyboardAvoidingView>
   );
 };
@@ -549,10 +563,6 @@ const styles = StyleSheet.create({
     elevation: 5, 
     zIndex: 999,
   },
-  completedStepContainer: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-  },
   deliveryTitle:{
     fontWeight: 'bold',
     fontSize: 22,
@@ -581,9 +591,16 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 40,
   },
-  checkIcon: {
-    marginLeft: 10,
-  }
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#888",
+  },
   
 });
 
