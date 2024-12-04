@@ -197,9 +197,9 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           ) : (
             // Non-editable Container
             isCompleted && step.field !== Steps.FinancingStatus && (
-              <View style={styles.stepCard}>
+              <View style={styles.containerDatePicker}>
                 <Text style={styles.label}>{step.label}</Text>
-                <View>
+                <View style={{marginTop: 4}}>
                   <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
                 </View>
               </View>
