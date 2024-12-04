@@ -91,7 +91,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       await updateDoc(docRef, updatedDelivery);
   
       // Fonctionnel mais vous devez d'abord mettre en place l'api pour le serveur express
-      // await sendEmailNotification();
+      await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
@@ -117,9 +117,14 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         return;
       }
   
-      const allowedRoles = currentStepInfo.allowedRoles;
+      const previousStepIndex = currentStep - 1;
+      if (previousStepIndex < 0) {
+        Alert.alert("Erreur", "Il n'y a pas d'étape précédente.");
+        return;
+      }
+      const previousStepInfo = stepsArray[previousStepIndex];
+      const allowedRoles = previousStepInfo.allowedRoles;
   
-      // Récupérer les utilisateurs correspondant aux rôles autorisés
       const recipients: { email: string; name: string }[] = [];
       for (const role of allowedRoles) {
         const users = await apiStore.getUsersByRole(role);
@@ -134,16 +139,19 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       for (const recipient of recipients) {
         await emailStore.sendEmail(
           recipient.email,
-          updatedDelivery.title,
-          delivery.title,
+          `Validation requise pour l'étape ${previousStepInfo.label}`,
+          `Bonjour ${recipient.name},\n\nA votre tour de noter pour valider l'étape "${previousStepInfo.label}" et passer à l'étape suivante "${currentStepInfo.label}".\n\nCordialement,`,
           delivery.id
         );
       }
+  
     } catch (error) {
       console.error("Error sending email notification:", error);
       throw new Error("Email notification failed");
     }
-  };
+  };   
+
+
 
   const handleInputChange = (field: Steps, value: string | boolean | Date) => {
     setUpdatedDelivery((prev: any) => ({ ...prev, [field]: value }));
@@ -230,7 +238,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                     })()
                 }
               </Text>
-              
+
             </TouchableOpacity>
             {activeDatePicker === step.field && (
               <DateTimePicker
