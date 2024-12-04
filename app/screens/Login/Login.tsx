@@ -41,8 +41,7 @@ const Login = observer(() => {
             index: 0,
             routes: [
               {
-                name: 'TabScreens',
-                params: { screen: 'Home' },
+                name: 'TabScreens'
               },
             ],
           })

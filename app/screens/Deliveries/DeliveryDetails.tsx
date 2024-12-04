@@ -49,13 +49,13 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     { label: "Frais de préparation", field: Steps.PreparationFees, type: "text", allowedRoles: [Role.rco] },
     { label: "Configuration du produit", field: Steps.Configuration, type: "text", allowedRoles: [Role.rco] },
     { label: "Documentation", field: Steps.Documentation, type: "boolean", allowedRoles: [Role.rco] },
-    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date", allowedRoles: [Role.convoyage] },
-    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date", allowedRoles: [Role.vendeur] },
-    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean", allowedRoles: [Role.vendeur] },
-    { label: "Statut de financement", field: Steps.FinancingStatus, type: "boolean", allowedRoles: [Role.financialManager] },
-    { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
-    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur] },
-    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste] },
+    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date", allowedRoles: [Role.convoyage, Role.rco] },
+    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
+    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean", allowedRoles: [Role.vendeur, Role.rco] },
+    { label: "Statut de financement", field: Steps.FinancingStatus, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
+    { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean", allowedRoles: [Role.financialManager, Role.rco, Role.rco] },
+    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
+    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
   ];
 
   if(!user) return null;
@@ -87,7 +87,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
   
-      await sendEmailNotification();
+      // await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
@@ -190,7 +190,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
               <Text style={styles.label}>{step.label}</Text>
               <TextInput
                 style={styles.input}
-                value={updatedDelivery[step.field] || ""}
+                value={updatedDelivery[step.field]}
                 onChangeText={(value) => handleInputChange(step.field, value)}
               />
             </View>
@@ -210,8 +210,9 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         {step.type === "date" && isEditable && (
           <View style={styles.containerDatePicker}>
             <Text style={styles.labelDate}>{step.label}</Text>
+            
             <TouchableOpacity
-              onPress={() => setActiveDatePicker(activeDatePicker === step.field ? null : step.field)}
+              onPress={() => setActiveDatePicker( step.field)}
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
@@ -312,10 +313,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                   iconColor={theme.colors.primary}
                   size={22}
                   disabled={
-                    (currentStep >= stepsArray.length - 1) 
-                    || (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
-                    || (currentStep===1 && delivery.presence===false)
-                    || !isUserAllowedToModifyStep(stepsArray[currentStep])
+                    (currentStep >= stepsArray.length - 1) || 
+                    (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
                   }
                   onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
                 />
