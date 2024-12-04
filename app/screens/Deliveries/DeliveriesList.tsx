@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Modal, TouchableOpacity } from "react-native";
+import { View, StyleSheet, FlatList, Modal } from "react-native";
 import { ActivityIndicator, IconButton, Text, Button } from "react-native-paper";
 import { useStores } from "../../stores";
 import { Delivery } from "../../types/Delivery";
@@ -109,9 +109,12 @@ const DeliveriesList = () => {
             <Button mode="contained" onPress={() => handleSort("desc")} style={styles.modalButton}>
               Date Décroissante
             </Button>
-            <TouchableOpacity onPress={()=> setOpenSortModal(false)}>
-              <Text style={styles.cancelText}>Annuler</Text>
-            </TouchableOpacity>
+            <Button 
+              mode="outlined"  
+              onPress={()=> setOpenSortModal(false)} 
+              style={styles.cancelText}>
+                Annuler
+              </Button>
           </View>
         </View>
       </Modal>
@@ -185,7 +188,8 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     marginTop: 15,
-    color: theme.colors.accent,
+    borderWidth: 1,
+    borderColor: theme.colors.accent
   },
 });
 

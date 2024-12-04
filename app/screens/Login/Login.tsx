@@ -62,7 +62,7 @@ const Login = observer(() => {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
-        Welcome Back
+        Bienvenue
       </Text>
 
       <Controller
@@ -137,10 +137,10 @@ const Login = observer(() => {
       ) : (
         <View style={styles.buttonContainer}>
           <Button mode="contained" onPress={handleSubmit(signIn)} style={styles.button}>
-            Sign In
+            Connexion
           </Button>
           <Button mode="text" onPress={goToSignUp} style={styles.button}>
-            Create Account
+            Créer un ompte
           </Button>
         </View>
       )}
@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     color: '#1C1C1E',
+    fontWeight: "bold"
   },
   input: {
     marginBottom: 16,

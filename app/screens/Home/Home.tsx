@@ -40,7 +40,7 @@ const Home = () => {
 
         <Divider style={styles.divider} />
 
-        {(user?.role == Role.vendeur || user?.role == Role.rco ) ? 
+        {(user?.role == Role.vendeur ) &&
           <Button
             mode="contained"
             style={styles.button}
@@ -48,8 +48,7 @@ const Home = () => {
           >
             Ajouter une livraison
           </Button> 
-        : null }
-        
+        }
 
         <Button
           mode="contained"

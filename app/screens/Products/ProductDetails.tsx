@@ -6,13 +6,16 @@ import { Button, useTheme, Text } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigations/RootStackParamList';
+import { Role } from '../../types/User';
+import { User } from '../../types/FirebaseUser';
 
 type ProductDetailsProps = StackScreenProps<RootStackParamList, 'ProductDetails'>;
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
-  const { apiStore } = useStores();
+  const { apiStore, userStore } = useStores();
   const { productId } = route.params;
   const theme = useTheme();
+  const user: User | null = userStore.user;
   const [product, setProduct] = useState<Product>();
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<any>();
@@ -87,6 +90,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
         </View>
       </View>
 
+      {(user?.role == Role.vendeur ) &&
         <View style={styles.buttonContainer}>
           <Button 
             mode="contained" 
@@ -97,6 +101,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
             Commander maintenant
           </Button>
         </View>
+      }
 
     </ScrollView>
   );

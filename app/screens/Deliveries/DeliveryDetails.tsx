@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Modal,
   Switch,
   ScrollView,
   KeyboardAvoidingView,
@@ -30,15 +31,14 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   const [activeDatePicker, setActiveDatePicker] = useState<string | null>(null);
   const navigation = useNavigation<any>();
   const theme = useTheme();
-  const { userStore } = useStores(); 
-  const { apiStore } = useStores();
-  const {emailStore } = useStores();
+  const { userStore, apiStore, emailStore } = useStores(); 
+  const [openModal, setOpenModal] = useState<boolean>(false);
   const user = userStore.user; 
 
   interface Step {
     label: string;
     field: Steps;
-    type: "text" | "boolean" | "date" | "checkbox";
+    type: "text" | "boolean" | "date" ;
     allowedRoles: string[]; 
   }
   
@@ -153,60 +153,82 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   
     return (
       <View key={step.field} style={styles.stepContainer}>
-        <Text style={styles.label}>{step.label} :</Text>
+        {step.type === "boolean" && !isEditable && (
+          <View style={styles.booleanCard}>
+            <Text style={styles.label}>{step.label}</Text>
+            {updatedDelivery[step.field] === true ? (
+              <Icon source={"check-circle-outline"} size={24} color="#71d177" />
+            ) : (
+              <Icon source={"close-circle-outline"} size={24} color="#e00000" />
+            )}
+          </View>
+        )}
   
-        {isCompleted && !isEditable ? (
-          <Text style={styles.completedStepText}>
-            {step.type === "date"
-              ? new Date(updatedDelivery[step.field]).toLocaleDateString()
-              : updatedDelivery[step.field]?.toString() || "Non renseigné"}
-          </Text>
-        ) : (
-          <>
-            {step.type === "text" && isEditable && (
-              <TextInput
-                style={styles.input}
-                value={updatedDelivery[step.field] || ""}
-                onChangeText={(value) => handleInputChange(step.field, value)}
-              />
-            )}
-            {step.type === "boolean" && isEditable && (
-              <Switch
-                value={!!updatedDelivery[step.field]}
-                onValueChange={(value) => handleInputChange(step.field, value)}
-              />
-            )}
-            {step.type === "date" && isEditable && (
-              <>
-                <TouchableOpacity
-                  onPress={() => setActiveDatePicker(step.field)}
-                  style={styles.dateButton}
-                >
-                  <Text style={styles.dateText}>
-                    {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
-                  </Text>
-                </TouchableOpacity>
-                {activeDatePicker === step.field && (
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={(event, selectedDate) => {
-                      setActiveDatePicker(null);
-                      if (selectedDate) {
-                        setDate(selectedDate);
-                        handleInputChange(step.field, selectedDate.toISOString());
-                      }
-                    }}
+        {(step.type === "text") && (
+          <View style={styles.booleanCard}>
+            <Text style={styles.label}>{step.label}</Text>
+            {(isCompleted && !isEditable && step.field!==Steps.FinancingStatus) ?
+              (<View>
+                {step.type === "text" && isEditable && (
+                  <TextInput
+                    style={styles.input}
+                    value={updatedDelivery[step.field] || ""}
+                    onChangeText={(value) => handleInputChange(step.field, value)}
                   />
                 )}
-              </>
-            )}
-          </>
+              <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+              </View>) : 
+              ( <View>
+                  {isEditable && (
+                    <TextInput
+                      style={styles.input}
+                      value={updatedDelivery[step.field] || ""}
+                      onChangeText={(value) => handleInputChange(step.field, value)}
+                    />
+                  )}
+                  {updatedDelivery[step.field] === "done" ? (
+                    <Icon source={"check-circle-outline"} size={24} color="#71d177" />
+                  ) : (
+                    <Icon source={"close-circle-outline"} size={24} color="#e00000" />
+                  )}
+                </View>
+              )
+            }
+          </View>
         )}
+  
+        {isEditable && step.type === "date" && (
+          <View style={styles.conainerDatePicker}>
+            <Text style={styles.labelDate}>{step.label}</Text>
+            <TouchableOpacity
+              onPress={() => setActiveDatePicker(step.field)}
+              style={styles.dateButton}
+            >
+              <Text style={styles.dateText}>
+                {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+            {activeDatePicker === step.field && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(event, selectedDate) => {
+                  setActiveDatePicker(null);
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                    handleInputChange(step.field, selectedDate.toISOString());
+                  }
+                }}
+              />
+            )}
+          </View>
+        )}
+
       </View>
     );
   };
+  
 
   const handleDelete = async () => {
     try {
@@ -242,16 +264,17 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             ]}
           />
         </View>
-          {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
-          {showDatePicker && (
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onDateChange}
-                
-              />
-            )}
+
+        {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
+        {showDatePicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={onDateChange}     
+            />
+        )}
+
         <View style={styles.buttonContainer}>
           {currentUserRole !== Role.secretariat && (
             <View style={[styles.buttonBackContainer]}>
@@ -282,28 +305,63 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           }
 
         </View>
-        {currentUserRole !== Role.secretariat ? 
-            <View>
-              <Button
-                mode="contained"
-                style={styles.saveButton}
-                onPress={handleSave}
+
+        {currentUserRole !== Role.secretariat &&
+          <View>
+            <Button
+              mode="contained"
+              style={styles.saveButton}
+              onPress={handleSave}
+            >
+              <View style={styles.buttonContent}>
+                <Icon source={"content-save"} size={22} color="white" />
+                <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
+              </View>
+            </Button>
+
+            {currentUserRole == Role.vendeur &&  
+              <Button 
+                onPress={()=>setOpenModal(true)} 
+                mode="outlined"
+                style={styles.cancelButton}
               >
-                <View style={styles.buttonContent}>
-                  <Icon source={"content-save"} size={22} color="white" />
-                  <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
-                </View>
+                  <View style={styles.buttonContent}>
+                    <Icon source={"delete"} size={22} color={theme.colors.primary}/>
+                    <Text style={[styles.buttonText, { ...theme.fonts.labelLarge, color: theme.colors.primary }]}>
+                      Supprimer la livraison
+                    </Text>
+                  </View>
               </Button>
-              {currentUserRole == Role.vendeur ?  
-              <Button onPress={handleDelete} mode="contained" style={styles.saveButton}>
-                <View style={styles.buttonContent}>
-                  <Icon source={"content-save"} size={22} color="red" />
-                  <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Supprimer la livraison</Text>
+            }
+
+            <Modal
+              visible={openModal}
+              transparent
+              animationType="fade"
+              onRequestClose={()=> setOpenModal(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContainer}>
+                  <Text style={styles.modalTitle}>Êtes-vous sûr de vouloir supprimer?</Text>
+                  <Button mode="contained" 
+                    onPress={handleDelete} 
+                    style={styles.modalButton}
+                  >
+                    Supprimer
+                  </Button>
+                  <Button 
+                    mode="outlined"  
+                    onPress={()=> setOpenModal(false)} 
+                    style={styles.canelDeleteButton}>
+                      Annuler
+                  </Button>
                 </View>
-              </Button> : null}
-            </View>
-          : null
+              </View>
+            </Modal>
+
+          </View>
         }
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -314,6 +372,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 16,
     backgroundColor: "#f9f9f9",
+    paddingBottom: 20
   },
   progressBarContainer: {
     height: 8,
@@ -339,9 +398,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary
   },
   stepContainer: {
-    marginBottom: 24,
-    backgroundColor: "#fff",
     borderRadius: 8,
+    backgroundColor: "transparent",
     paddingVertical: 12,
     paddingHorizontal: 10,
     shadowColor: "#000",
@@ -350,10 +408,50 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  modalButton: {
+    marginVertical: 10,
+    width: "100%",
+  },
+  saveButton: {
+    marginTop: 50,
+    alignSelf: "center",
+    marginVertical: 10,
+    backgroundColor: '#007BFF',
+  },
+  cancelButton: {
+    marginTop: 15,
+    borderWidth: 1,
+    width:"90%",
+    alignSelf: "center",
+    borderColor: theme.colors.accent,
+  },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 8,
+    color: "#1C1C1E",
+  },
+  labelDate: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12,
     color: "#1C1C1E",
   },
   input: {
@@ -367,8 +465,8 @@ const styles = StyleSheet.create({
   dateButton: {
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 12,
-    borderRadius: 8,
+    padding: 10,
+    borderRadius: 30,
     backgroundColor: "#fff",
     alignItems: "center",
   },
@@ -392,10 +490,12 @@ const styles = StyleSheet.create({
     gap: 16,
     marginVertical: 10,
   },
-  saveButton: {
-    alignSelf: "center",
+  canelDeleteButton: {
+    marginTop: 10,
     marginVertical: 10,
-    backgroundColor: '#007BFF',
+    width: "100%",
+    alignSelf: "center",
+    borderColor: "#FF6347",
   },
   buttonContent: {
     flexDirection: "row",
@@ -409,8 +509,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   completedStepContainer: {
-    marginVertical: 8,
-    padding: 10,
     backgroundColor: "#f0f0f0",
     borderRadius: 8,
   },
@@ -418,6 +516,28 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 16,
   },
+  conainerDatePicker:{
+    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 20,
+  },
+  booleanCard: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 40,
+  },
+  checkIcon: {
+    marginLeft: 10,
+  }
   
 });
 
