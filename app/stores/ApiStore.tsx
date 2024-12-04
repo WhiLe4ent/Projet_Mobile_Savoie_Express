@@ -100,11 +100,6 @@ export default class ApiStore {
       throw new Error("Failed to fetch users");
     }
   }
-
-
-
-
- 
   
   @action
   public async checkDeliveryName(name: string): Promise<boolean> {

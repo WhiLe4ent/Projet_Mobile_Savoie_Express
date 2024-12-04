@@ -18,6 +18,9 @@ Voici le lien d'explication:
 https://support.google.com/accounts/answer/185833?hl=en  <br>
 Cliquer sur : "Create and manage your app passwords"  <br>
 
+**IMPORTANT !** Si vous voulez avoir les mails enlever les commentaires dans app/screens/Deliveries/DeliveryDetails.tsx ligne 94
+(La ligne est commentée pour pouvoir faire fonctionner l'application même si vous n'avez pas pris le temps de setup votre addresse IP et de demarrer le serveurs expresse)
+
 2. 
 ```bash 
    nano ../app/settings/Variables.tsx

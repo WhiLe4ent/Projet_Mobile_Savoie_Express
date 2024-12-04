@@ -33,17 +33,16 @@ export default class UserStore {
   async setUser(uid: string) {
     if (uid) {
       try {
-        const userDocRef = doc(FIREBASE_DB, "Users", uid); // Reference to the user document
-        const userDoc = await getDoc(userDocRef); // Fetch the document
+        const userDocRef = doc(FIREBASE_DB, "Users", uid); 
+        const userDoc = await getDoc(userDocRef); 
 
         if (userDoc.exists()) {
-          const userData = userDoc.data() as User; // Cast Firestore document data to User type
+          const userData = userDoc.data() as User;
 
           runInAction(() => {
             this.user = userData;
           })
           
-          // Optionally, save the user data to AsyncStorage
           await AsyncStorage.setItem("user", JSON.stringify(userData));
         } else {
           console.warn("No user document found for UID:", uid);

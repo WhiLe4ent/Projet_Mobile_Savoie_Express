@@ -111,7 +111,7 @@ const Register = observer(() => {
               autoCapitalize="none"
               style={styles.input}
               returnKeyType="next"
-              onSubmitEditing={() => passwordRef.current?.focus()} // Lors du "Enter", passer au champ mot de passe
+              onSubmitEditing={() => passwordRef.current?.focus()} 
             />
           )}
         />
@@ -141,7 +141,7 @@ const Register = observer(() => {
               autoCapitalize="none"
               style={styles.input}
               returnKeyType="next"
-              onSubmitEditing={() => firstNameRef.current?.focus()} // Passer au champ prénom
+              onSubmitEditing={() => firstNameRef.current?.focus()} 
             />
           )}
         />
@@ -166,7 +166,7 @@ const Register = observer(() => {
               autoCapitalize="none"
               style={styles.input}
               returnKeyType="next"
-              onSubmitEditing={() => lastNameRef.current?.focus()} // Passer au champ nom de famille
+              onSubmitEditing={() => lastNameRef.current?.focus()} 
             />
           )}
         />
@@ -191,7 +191,7 @@ const Register = observer(() => {
               autoCapitalize="none"
               style={styles.input}
               returnKeyType="next"
-              onSubmitEditing={() => pseudoRef.current?.focus()} // Passer au champ pseudo
+              onSubmitEditing={() => pseudoRef.current?.focus()} 
             />
           )}
         />

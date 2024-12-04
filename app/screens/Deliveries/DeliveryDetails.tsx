@@ -91,7 +91,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       await updateDoc(docRef, updatedDelivery);
   
       // Fonctionnel mais vous devez d'abord mettre en place l'api pour le serveur express
-      await sendEmailNotification();
+      // await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
