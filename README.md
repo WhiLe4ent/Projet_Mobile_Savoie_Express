@@ -2,22 +2,35 @@
 
 Savoie Express est une application mobile de gestion des utilisateurs, intégrant une authentification Firebase. Ce projet est en développement et inclut actuellement des fonctionnalités de connexion et déconnexion.
 
-## Fonctionnalités actuelles
+## Configuration du projet
+1.  
+```bash 
+   cd api
+``` 
+```bash 
+   npm i
+``` 
+Copier-coller le contenu du fichier .env.example et créer un fichier .env</br>
+Remplir ce fichier avec les bons données.</br>
 
-- **Page de connexion** : Permet aux utilisateurs de se connecter via Firebase.
-- **Authentification Firebase** : L'authentification est opérationnelle et redirige les utilisateurs après la connexion.
-- **Déconnexion** : Les utilisateurs peuvent se déconnecter de l'application.
+*IMPORTANT !* Dans EMAIL_PASS c'est pas le mdp de votre addresse mail gmail.</br>
+Voici le lien d'explication:
+https://support.google.com/accounts/answer/185833?hl=en </br>
+Cliquer sur : "Create and manage your app passwords"</br>
 
-## Fonctionnalités à venir
+2. 
+```bash 
+   nano ../app/settings/Variables.tsx
+```  
+Dans le fichier app/settings/Variables.tsx
+Mettre à jour avec votre addresse IP la variable API_URL.
 
-- **Attribution des rôles** : Lors de la création d'un compte, un rôle (par exemple, vendeur ou client) sera attribué à chaque utilisateur.
-- **Navigation en fonction du rôle** : Une logique de navigation sera ajoutée pour rediriger les utilisateurs vers une page spécifique selon leur rôle (ex. : page des vendeurs, page des clients).
 
 ## Installation et lancement du projet
 
 Pour installer les dépendances, exécutez la commande 
 ```bash 
-    npm install
+    npm i
 ```
 
  Ensuite, lancez le projet avec la commande 
@@ -30,18 +43,24 @@ Dans un autre terminal:
  ```bash 
     cd api
  ``` 
-Copier-coller le contenu du fichier .env.example et créer un fichier .env</br>
-Remplir ce fichier avec les bons données.</br>
-
-*IMPORTANT !* Dans EMAIL_PASS c'est pas le mdp de votre email.</br>
-Voici le lien d'explication:
-https://support.google.com/accounts/answer/185833?hl=en </br>
-Cliquer sur : "Create and manage your app passwords"</br>
 
 Demarrage du server pour l'envoi d'emails
  ```bash 
     npm start
  ``` 
+
+
+## Fonctionnalités actuelles
+
+- **Page de connexion** : Permet aux utilisateurs de se connecter via Firebase.
+- **Authentification Firebase** : L'authentification est opérationnelle et redirige les utilisateurs après la connexion.
+- **Déconnexion** : Les utilisateurs peuvent se déconnecter de l'application.
+
+
+## Fonctionnalités à venir
+
+- **Attribution des rôles** : Lors de la création d'un compte, un rôle (par exemple, vendeur ou client) sera attribué à chaque utilisateur.
+- **Navigation en fonction du rôle** : Une logique de navigation sera ajoutée pour rediriger les utilisateurs vers une page spécifique selon leur rôle (ex. : page des vendeurs, page des clients).
 
 
 ## Technologies utilisées

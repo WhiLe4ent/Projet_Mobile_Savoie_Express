@@ -89,7 +89,6 @@ const Products = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

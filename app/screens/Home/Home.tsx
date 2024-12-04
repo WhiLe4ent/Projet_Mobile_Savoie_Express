@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   roleText: {
-    color: '#FF6347', // Couleur différente pour le rôle
+    color: '#FF6347',
   },
   divider: {
     marginVertical: 20,
