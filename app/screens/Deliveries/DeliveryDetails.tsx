@@ -207,7 +207,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           )
         )}
 
-        {step.type === "date" && isEditable && (
+        {step.type === "date" && isEditable ? (
           <View style={styles.containerDatePicker}>
             <Text style={styles.labelDate}>{step.label}</Text>
             
@@ -234,7 +234,18 @@ const DeliveryDetails = ({ route }: { route: any }) => {
               />
             )}
           </View>
-        )}
+        )
+        : (
+          step.type === "date" && isCompleted && step.field !== Steps.FinancingStatus && (
+            <View style={styles.stepCard}>
+              <Text style={styles.label}>{step.label}</Text>
+              <View>
+                <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+              </View>
+            </View>
+          )
+        )
+        }
       </View>
     );
   };
