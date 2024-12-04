@@ -199,7 +199,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 
         {step.type === "text" && (
           isEditable ? (
-            // Editable Container
             <View style={styles.containerDatePicker}>
               <Text style={styles.label}>{step.label}</Text>
               <TextInput
@@ -209,7 +208,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
               />
             </View>
           ) : (
-            // Non-editable Container
             isCompleted && step.field !== Steps.FinancingStatus && (
               <View style={styles.containerDatePicker}>
                 <Text style={styles.label}>{step.label}</Text>
@@ -257,12 +255,10 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           </View>
         ) : (
           step.type === "date" && isCompleted && step.field !== Steps.FinancingStatus && (
-            <View style={styles.stepCard}>
+            <View style={styles.containerDatePicker}>
               <Text style={styles.label}>{step.label}</Text>
-              <View>
-                <Text style={styles.completedStepText}>
-                  {new Date(updatedDelivery[step.field]).toLocaleDateString("en-GB")}
-                </Text>
+              <View style={{marginTop: 4}}>
+                <Text style={styles.completedStepText}>{new Date(updatedDelivery[step.field]).toLocaleDateString("en-GB")}</Text>
               </View>
             </View>
           )
