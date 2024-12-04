@@ -38,7 +38,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   interface Step {
     label: string;
     field: Steps;
-    type: "text" | "boolean" | "date" | "checkbox";
+    type: "text" | "boolean" | "date" ;
     allowedRoles: string[]; 
   }
   
@@ -153,60 +153,82 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   
     return (
       <View key={step.field} style={styles.stepContainer}>
-        <Text style={styles.label}>{step.label} :</Text>
+        {step.type === "boolean" && !isEditable && (
+          <View style={styles.booleanCard}>
+            <Text style={styles.label}>{step.label}</Text>
+            {updatedDelivery[step.field] === true ? (
+              <Icon source={"check-circle-outline"} size={24} color="#71d177" />
+            ) : (
+              <Icon source={"close-circle-outline"} size={24} color="#e00000" />
+            )}
+          </View>
+        )}
   
-        {isCompleted && !isEditable ? (
-          <Text style={styles.completedStepText}>
-            {step.type === "date"
-              ? new Date(updatedDelivery[step.field]).toLocaleDateString()
-              : updatedDelivery[step.field]?.toString() || "Non renseigné"}
-          </Text>
-        ) : (
-          <>
-            {step.type === "text" && isEditable && (
-              <TextInput
-                style={styles.input}
-                value={updatedDelivery[step.field] || ""}
-                onChangeText={(value) => handleInputChange(step.field, value)}
-              />
-            )}
-            {step.type === "boolean" && isEditable && (
-              <Switch
-                value={!!updatedDelivery[step.field]}
-                onValueChange={(value) => handleInputChange(step.field, value)}
-              />
-            )}
-            {step.type === "date" && isEditable && (
-              <>
-                <TouchableOpacity
-                  onPress={() => setActiveDatePicker(step.field)}
-                  style={styles.dateButton}
-                >
-                  <Text style={styles.dateText}>
-                    {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
-                  </Text>
-                </TouchableOpacity>
-                {activeDatePicker === step.field && (
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={(event, selectedDate) => {
-                      setActiveDatePicker(null);
-                      if (selectedDate) {
-                        setDate(selectedDate);
-                        handleInputChange(step.field, selectedDate.toISOString());
-                      }
-                    }}
+        {(step.type === "text") && (
+          <View style={styles.booleanCard}>
+            <Text style={styles.label}>{step.label}</Text>
+            {(isCompleted && !isEditable && step.field!==Steps.FinancingStatus) ?
+              (<View>
+                {step.type === "text" && isEditable && (
+                  <TextInput
+                    style={styles.input}
+                    value={updatedDelivery[step.field] || ""}
+                    onChangeText={(value) => handleInputChange(step.field, value)}
                   />
                 )}
-              </>
-            )}
-          </>
+              <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+              </View>) : 
+              ( <View>
+                  {isEditable && (
+                    <TextInput
+                      style={styles.input}
+                      value={updatedDelivery[step.field] || ""}
+                      onChangeText={(value) => handleInputChange(step.field, value)}
+                    />
+                  )}
+                  {updatedDelivery[step.field] === "done" ? (
+                    <Icon source={"check-circle-outline"} size={24} color="#71d177" />
+                  ) : (
+                    <Icon source={"close-circle-outline"} size={24} color="#e00000" />
+                  )}
+                </View>
+              )
+            }
+          </View>
         )}
+  
+        {isEditable && step.type === "date" && (
+          <View style={styles.conainerDatePicker}>
+            <Text style={styles.labelDate}>{step.label}</Text>
+            <TouchableOpacity
+              onPress={() => setActiveDatePicker(step.field)}
+              style={styles.dateButton}
+            >
+              <Text style={styles.dateText}>
+                {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+            {activeDatePicker === step.field && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(event, selectedDate) => {
+                  setActiveDatePicker(null);
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                    handleInputChange(step.field, selectedDate.toISOString());
+                  }
+                }}
+              />
+            )}
+          </View>
+        )}
+
       </View>
     );
   };
+  
 
   const handleDelete = async () => {
     try {
@@ -311,6 +333,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                   </View>
               </Button>
             }
+
             <Modal
               visible={openModal}
               transparent
@@ -335,9 +358,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                 </View>
               </View>
             </Modal>
+
           </View>
-
-
         }
 
       </ScrollView>
@@ -376,9 +398,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary
   },
   stepContainer: {
-    marginBottom: 24,
-    backgroundColor: "#fff",
     borderRadius: 8,
+    backgroundColor: "transparent",
     paddingVertical: 12,
     paddingHorizontal: 10,
     shadowColor: "#000",
@@ -409,15 +430,28 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: "100%",
   },
+  saveButton: {
+    marginTop: 50,
+    alignSelf: "center",
+    marginVertical: 10,
+    backgroundColor: '#007BFF',
+  },
   cancelButton: {
     marginTop: 15,
     borderWidth: 1,
+    width:"90%",
+    alignSelf: "center",
     borderColor: theme.colors.accent,
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 8,
+    color: "#1C1C1E",
+  },
+  labelDate: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12,
     color: "#1C1C1E",
   },
   input: {
@@ -431,8 +465,8 @@ const styles = StyleSheet.create({
   dateButton: {
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 12,
-    borderRadius: 8,
+    padding: 10,
+    borderRadius: 30,
     backgroundColor: "#fff",
     alignItems: "center",
   },
@@ -456,14 +490,10 @@ const styles = StyleSheet.create({
     gap: 16,
     marginVertical: 10,
   },
-  saveButton: {
-    marginTop: 50,
-    alignSelf: "center",
-    marginVertical: 10,
-    backgroundColor: '#007BFF',
-  },
   canelDeleteButton: {
     marginTop: 10,
+    marginVertical: 10,
+    width: "100%",
     alignSelf: "center",
     borderColor: "#FF6347",
   },
@@ -479,8 +509,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   completedStepContainer: {
-    marginVertical: 8,
-    padding: 10,
     backgroundColor: "#f0f0f0",
     borderRadius: 8,
   },
@@ -488,6 +516,28 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 16,
   },
+  conainerDatePicker:{
+    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 20,
+  },
+  booleanCard: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 40,
+  },
+  checkIcon: {
+    marginLeft: 10,
+  }
   
 });
 
