@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
-import { Text, Button, Icon, useTheme, Title, IconButton} from "react-native-paper";
+import { Text, Button, Icon, useTheme, IconButton} from "react-native-paper";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -49,14 +49,16 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     { label: "Frais de préparation", field: Steps.PreparationFees, type: "text", allowedRoles: [Role.rco] },
     { label: "Configuration du produit", field: Steps.Configuration, type: "text", allowedRoles: [Role.rco] },
     { label: "Documentation", field: Steps.Documentation, type: "boolean", allowedRoles: [Role.rco] },
-    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date", allowedRoles: [Role.convoyage, Role.rco] },
-    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
-    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean", allowedRoles: [Role.vendeur, Role.rco] },
-    { label: "Statut de financement", field: Steps.FinancingStatus, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
+    { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date", allowedRoles: [Role.convoyage] },
+    { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date", allowedRoles: [Role.vendeur] },
+    { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean", allowedRoles: [Role.vendeur] },
+    { label: "Statut de financement", field: Steps.FinancingStatus, type: "boolean", allowedRoles: [Role.financialManager] },
     { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
-    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
-    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
+    { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur] },
+    { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste] },
   ];
+
+  if(!user) return null;
 
   //Si le user on lui met Secretariat (le moins de droit possible)
   const currentUserRole = user?.role || Role.secretariat ; 
@@ -85,7 +87,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
   
-      // await sendEmailNotification();
+      //await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
@@ -161,7 +163,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     return (
       <View key={step.field} style={styles.stepContainer}>
         {step.type === "boolean" && !isEditable && (
-          <View style={styles.booleanCard}>
+          <View style={styles.stepCard}>
             <Text style={styles.label}>{step.label}</Text>
             {updatedDelivery[step.field] === true ? (
               <Icon source={"check-circle-outline"} size={24} color="#71d177" />
@@ -172,7 +174,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
         )}
 
         {step.type === "boolean" && isEditable && (
-          <View style={styles.booleanCard}>
+          <View style={styles.stepCard}>
             <Text style={styles.label}>{step.label}</Text>
             <Switch
               value={updatedDelivery[step.field] !== undefined ? updatedDelivery[step.field] : false}
@@ -181,33 +183,35 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           </View>
         )}
 
-
         {step.type === "text" && (
-          <View style={styles.booleanCard}>
-            <Text style={styles.label}>{step.label}</Text>
-            {isCompleted && !isEditable && step.field !== Steps.FinancingStatus ? (
-              <View>
-                <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+          isEditable ? (
+            // Editable Container
+            <View style={styles.containerDatePicker}>
+              <Text style={styles.label}>{step.label}</Text>
+              <TextInput
+                style={styles.input}
+                value={updatedDelivery[step.field] || ""}
+                onChangeText={(value) => handleInputChange(step.field, value)}
+              />
+            </View>
+          ) : (
+            // Non-editable Container
+            isCompleted && step.field !== Steps.FinancingStatus && (
+              <View style={styles.stepCard}>
+                <Text style={styles.label}>{step.label}</Text>
+                <View>
+                  <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+                </View>
               </View>
-            ) : (
-              <View>
-                {isEditable && (
-                  <TextInput
-                    style={styles.input}
-                    value={updatedDelivery[step.field] || ""}
-                    onChangeText={(value) => handleInputChange(step.field, value)}
-                  />
-                )}
-              </View>
-            )}
-          </View>
+            )
+          )
         )}
 
         {step.type === "date" && isEditable && (
           <View style={styles.containerDatePicker}>
             <Text style={styles.labelDate}>{step.label}</Text>
             <TouchableOpacity
-              onPress={() => setActiveDatePicker(step.field)}
+              onPress={() => setActiveDatePicker(activeDatePicker === step.field ? null : step.field)}
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
@@ -234,8 +238,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     );
   };
 
-  
-
   const handleDelete = async () => {
     try {
       await apiStore.deleteDelivery(delivery.id);
@@ -251,6 +253,11 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     }
   };
 
+  const isUserAllowedToModifyStep = (step: Step) => {
+    return user.role && step.allowedRoles.includes(user.role);
+  };
+  
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -265,11 +272,15 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           ]}
         />
       </View>
+
       <ScrollView 
-        contentContainerStyle={styles.container}
+        contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <Text style={styles.deliveryTitle}>
+          Livraison "{delivery.title}"
+        </Text>
 
         {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
         {showDatePicker && (
@@ -283,7 +294,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 
         <View style={styles.buttonContainer}>
           {currentUserRole !== Role.secretariat && (
-            <View style={[styles.buttonBackContainer]}>
+            <View style={[styles.buttonArrowContainer]}>
               <IconButton
                 icon={"arrow-left"}
                 iconColor={theme.colors.primary}
@@ -295,14 +306,16 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           )}
 
           {currentUserRole !== Role.secretariat && (
-              <View style={[styles.buttonNextContainer]}>
+              <View style={[styles.buttonArrowContainer]}>
                 <IconButton
                   icon={"arrow-right"}
-                  iconColor={"#ffffff"}
+                  iconColor={theme.colors.primary}
                   size={22}
                   disabled={
-                    (currentStep >= stepsArray.length - 1) || 
-                    (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+                    (currentStep >= stepsArray.length - 1) 
+                    || (!(stepsArray[currentStep].type === "date") && !updatedDelivery[stepsArray[currentStep].field])
+                    || (currentStep===1 && delivery.presence===false)
+                    || !isUserAllowedToModifyStep(stepsArray[currentStep])
                   }
                   onPress={() => setCurrentStep((prev) => prev === stepsArray.length - 1 ? prev : prev + 1)}
                 />
@@ -323,7 +336,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
                   <View style={styles.buttonContent}>
                     <Icon source={"delete"} size={22} color={theme.colors.primary}/>
                     <Text style={[styles.buttonText, { ...theme.fonts.labelLarge, color: theme.colors.primary }]}>
-                      Supprimer la livraison
+                      Supprimer
                     </Text>
                   </View>
               </Button>
@@ -357,17 +370,18 @@ const DeliveryDetails = ({ route }: { route: any }) => {
           </View>
         }
       </ScrollView>
+
       {currentUserRole !== Role.secretariat && (
-        <Button
-          mode="contained"
-          style={styles.floatingButton}
-          onPress={handleSave}
-        >
-          <View style={styles.buttonContent}>
-            <Icon source={"content-save"} size={22} color="white" />
-          </View>
-        </Button>
-    )}
+        <View style={[styles.buttonSaveContainer, styles.floatingButton]}>
+          <IconButton
+            icon={"content-save"}
+            iconColor={"#ffffff"}
+            size={22}
+            onPress={handleSave}
+          />
+        </View>
+      )}
+    
     </KeyboardAvoidingView>
   );
 };
@@ -375,9 +389,12 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     backgroundColor: "#f9f9f9",
-    paddingBottom: 20
+    paddingBottom: 20,
+  },
+  scrollContainer: {
+    paddingBottom: 50
   },
   progressBarContainer: {
     height: 8,
@@ -391,13 +408,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#4caf50",
     borderRadius: 4,
   },
-  buttonNextContainer: {
+  buttonSaveContainer: {
     borderWidth: 1,
     borderRadius: 40,
     backgroundColor: theme.colors.primary,
     borderColor: theme.colors.primary
   },
-  buttonBackContainer: {
+  buttonArrowContainer: {
     borderWidth: 1,
     borderRadius: 40,
     borderColor: theme.colors.primary
@@ -407,7 +424,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     paddingVertical: 12,
     paddingHorizontal: 10,
-    
   },
   modalOverlay: {
     flex: 1,
@@ -440,7 +456,6 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: 15,
     borderWidth: 1,
-    width:"90%",
     alignSelf: "center",
     borderColor: theme.colors.accent,
   },
@@ -459,9 +474,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 30,
     backgroundColor: "#fff",
     fontSize: 16,
+    marginTop: 10
   },
   dateButton: {
     borderWidth: 1,
@@ -515,7 +531,7 @@ const styles = StyleSheet.create({
     right: 20,
     width: 60, 
     height: 60,
-    borderRadius: 30, 
+    borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#007BFF", 
@@ -525,6 +541,12 @@ const styles = StyleSheet.create({
   completedStepContainer: {
     backgroundColor: "#f0f0f0",
     borderRadius: 8,
+  },
+  deliveryTitle:{
+    fontWeight: 'bold',
+    fontSize: 22,
+    marginLeft: 20,
+    marginVertical: 15
   },
   completedStepText: {
     color: "#888",
@@ -537,13 +559,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
   },
-  booleanCard: {
+  stepCard: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: 10,
-    flex: 1,
     backgroundColor: "#f9f9f9",
     borderWidth: 1,
     borderColor: "#ccc",

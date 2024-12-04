@@ -21,7 +21,7 @@ export type Delivery = {
     createdAt: Date;
     
     status: string; // Étape actuelle du workflow (e.g., "Etape 3", "Etape 4", ...)
-    presence: string; // "OUI" ou "NON" pour indiquer la présence sur le site
+    presence: boolean; // "OUI" ou "NON" pour indiquer la présence sur le site
     availability: string; // Disponibilité : "Immédiate" ou une date précise
     preparationFees: string; // "NON" ou description si "OUI"
     productConfiguration: string[]; // Liste des labels cochés (e.g., ["assemblé", "protégé"])

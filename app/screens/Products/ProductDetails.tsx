@@ -38,7 +38,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   }, [productId, apiStore]);
 
   const handlePress = () => {
-    console.log("product details : " + JSON.stringify(product))
     if (product)
     navigation.navigate("Livraisons", { screen: "CreateDelivery", params: {product} });
 
@@ -90,7 +89,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
         </View>
       </View>
 
-      {(user?.role == Role.vendeur || user?.role == Role.rco  ) &&
+      {(user?.role == Role.vendeur) &&
         <View style={styles.buttonContainer}>
           <Button 
             mode="contained" 

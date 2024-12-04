@@ -36,15 +36,17 @@ const Login = observer(() => {
       });
 
       if (response.user) {
-        CommonActions.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'TabScreens'
-            },
-          ],
-        });
-        navigation.navigate('TabScreens', { screen: 'Home' });
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'TabScreens',
+                params: { screen: 'Home' },
+              },
+            ],
+          })
+        );
       }
     } catch (error: any) {
       console.error(error);

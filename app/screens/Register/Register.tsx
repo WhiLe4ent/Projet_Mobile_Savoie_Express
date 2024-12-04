@@ -58,15 +58,19 @@ const Register = observer(() => {
         token: await response.user.getIdToken(),
       });
   
-      CommonActions.reset({
-        index: 0,
-        routes: [
-            {
-                name: 'TabScreens'
-            },
-        ],
-      })
-      navigation.navigate('TabScreens', { screen: 'Home'})
+      if (response.user) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'TabScreens',
+                params: { screen: 'Home' },
+              },
+            ],
+          })
+        );
+      }
     } catch (error: any) {
       console.error(error);
       Alert.alert('Registration Failed', error.message);
@@ -81,7 +85,7 @@ const Register = observer(() => {
       <ScrollView 
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
       >
         <Text style={styles.title}>Créer un compte</Text>
 
@@ -153,7 +157,7 @@ const Register = observer(() => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               ref={firstNameRef}
-              label="First Name"
+              label="Prénom"
               placeholder="Enter your first name"
               placeholderTextColor={theme.colors.placeholder}
               onBlur={onBlur}
@@ -178,7 +182,7 @@ const Register = observer(() => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               ref={lastNameRef}
-              label="Last Name"
+              label="Nom"
               placeholder="Enter your last name"
               placeholderTextColor={theme.colors.placeholder}
               onBlur={onBlur}
@@ -223,9 +227,12 @@ const Register = observer(() => {
             <Dropdown
               data={roles}
               labelField="label"
+              dropdownPosition="auto"
               valueField="value"
+              placeholderStyle={{color: theme.colors.placeholder}}
               placeholder="Sélectionnez un rôle"
               value={value}
+              autoScroll={true}
               onChange={(item) => onChange(item.value)}
               style={[styles.input, styles.dropdown]}
             />
@@ -251,6 +258,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginHorizontal: 20,
     backgroundColor: '#f5f5f5',
+    paddingBottom: 30
   },
   scrollViewContainer: {
     flexGrow: 1,

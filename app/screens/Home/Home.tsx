@@ -9,6 +9,7 @@ import { Role } from '../../types/User';
 const Home = () => {
   const { userStore } = useStores();
   const navigation = useNavigation<any>();
+  
   const user: User | null = userStore.user;
 
   const goToCreateDelivery = () => {

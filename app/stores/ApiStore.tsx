@@ -72,7 +72,6 @@ export default class ApiStore {
     try {
       const deliveryRef = doc(FIREBASE_DB, "deliveries", deliveryId);
       await deleteDoc(deliveryRef); 
-      console.log(`Delivery with ID ${deliveryId} successfully deleted`);
     } catch (error) {
       console.error("Error deleting delivery:", error);
       throw new Error("Failed to delete delivery");
