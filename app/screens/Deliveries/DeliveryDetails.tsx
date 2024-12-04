@@ -90,7 +90,8 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
   
-      await sendEmailNotification();
+      // Fonctionnel mais vous devez d'abord mettre en place l'api pour le serveur express
+      // await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
@@ -217,12 +218,19 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             <Text style={styles.labelDate}>{step.label}</Text>
             
             <TouchableOpacity
-              onPress={() => activeDatePicker ? setActiveDatePicker(null) : setActiveDatePicker(step.field)}
+              onPress={() => setActiveDatePicker(step.field)}
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
-                {new Date(updatedDelivery[step.field] || date).toLocaleDateString("en-GB")}
+                {updatedDelivery[step.field]
+                  ? new Date(updatedDelivery[step.field]).toLocaleDateString("en-GB")
+                  : (() => {
+                      handleInputChange(step.field, date.toISOString());
+                      return new Date(date).toLocaleDateString("en-GB");
+                    })()
+                }
               </Text>
+              
             </TouchableOpacity>
             {activeDatePicker === step.field && (
               <DateTimePicker

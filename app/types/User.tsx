@@ -8,15 +8,6 @@ export enum Role {
     expertProduit = 'Expert produit'
 }
 
-export type User = {
-    id: number
-    email: string 
-    firstName: string 
-    lastName: string
-    pseudo: string
-    role: Role
-}
-
 export interface RegisterForm 
 {
     email: string,
