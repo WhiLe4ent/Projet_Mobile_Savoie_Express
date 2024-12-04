@@ -87,7 +87,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
   
-      // await sendEmailNotification();
+      await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
@@ -212,11 +212,11 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             <Text style={styles.labelDate}>{step.label}</Text>
             
             <TouchableOpacity
-              onPress={() => setActiveDatePicker( step.field)}
+              onPress={() => setActiveDatePicker(step.field)}
               style={styles.dateButton}
             >
               <Text style={styles.dateText}>
-                {new Date(updatedDelivery[step.field] || date).toLocaleDateString()}
+                {new Date(updatedDelivery[step.field] || date).toLocaleDateString("en-GB")}
               </Text>
             </TouchableOpacity>
             {activeDatePicker === step.field && (
@@ -234,18 +234,19 @@ const DeliveryDetails = ({ route }: { route: any }) => {
               />
             )}
           </View>
-        )
-        : (
+        ) : (
           step.type === "date" && isCompleted && step.field !== Steps.FinancingStatus && (
             <View style={styles.stepCard}>
               <Text style={styles.label}>{step.label}</Text>
               <View>
-                <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+                <Text style={styles.completedStepText}>
+                  {new Date(updatedDelivery[step.field]).toLocaleDateString("en-GB")}
+                </Text>
               </View>
             </View>
           )
-        )
-        }
+        )}
+
       </View>
     );
   };

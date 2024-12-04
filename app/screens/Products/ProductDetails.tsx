@@ -89,7 +89,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
         </View>
       </View>
 
-      {(user?.role == Role.vendeur || user?.role == Role.rco) &&
+      {(user?.role == Role.vendeur) &&
         <View style={styles.buttonContainer}>
           <Button 
             mode="contained" 
