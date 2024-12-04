@@ -12,7 +12,7 @@ export type RootStackParamList = {
   Products: undefined;
   ProductDetails: { productId: string };
 
-  Deliveries: { screen: "CreateDelivery"; params: { product?: Product } }; 
+  Livraisons: { screen: "CreateDelivery"; params: { product?: Product } }; 
   CreateDelivery: {product?: Product};
   DeliveryDetails: { productId: string };
   DeliveriesList: undefined;

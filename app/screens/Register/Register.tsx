@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Alert, ScrollView, Platform, TouchableOpacity } from 'react-native';
 import { FIREBASE_AUTH } from '../../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -17,7 +17,7 @@ type RegisterRouteProps = {
 };
 
 const Register = observer(() => {
-  const {userStore} = useStores();
+  const { userStore } = useStores();
   const route = useRoute();
   const { initialEmail, initialPassword } = route.params as RegisterRouteProps;
   const navigation = useNavigation<any>();
@@ -38,6 +38,12 @@ const Register = observer(() => {
       role: undefined,
     },
   });
+
+  // Références pour chaque champ
+  const passwordRef = useRef<any>(null);
+  const firstNameRef = useRef<any>(null);
+  const lastNameRef = useRef<any>(null);
+  const pseudoRef = useRef<any>(null);
 
   const formValues = watch();
 
@@ -101,6 +107,8 @@ const Register = observer(() => {
               error={!!errors.email}
               autoCapitalize="none"
               style={styles.input}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()} // Lors du "Enter", passer au champ mot de passe
             />
           )}
         />
@@ -118,6 +126,7 @@ const Register = observer(() => {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
+              ref={passwordRef}
               label="Password"
               placeholder="Enter your password"
               placeholderTextColor={theme.colors.placeholder}
@@ -128,11 +137,13 @@ const Register = observer(() => {
               error={!!errors.password}
               autoCapitalize="none"
               style={styles.input}
+              returnKeyType="next"
+              onSubmitEditing={() => firstNameRef.current?.focus()} // Passer au champ prénom
             />
           )}
         />
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
- 
+        
         <Controller
           control={control}
           name="firstName"
@@ -141,20 +152,23 @@ const Register = observer(() => {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
+              ref={firstNameRef}
               label="First Name"
               placeholder="Enter your first name"
               placeholderTextColor={theme.colors.placeholder}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              error={!!errors.email}
+              error={!!errors.firstName}
               autoCapitalize="none"
               style={styles.input}
+              returnKeyType="next"
+              onSubmitEditing={() => lastNameRef.current?.focus()} // Passer au champ nom de famille
             />
           )}
         />
         {errors.firstName && <Text style={styles.errorText}>{errors.firstName.message}</Text>}
-        
+
         <Controller
           control={control}
           name="lastName"
@@ -163,15 +177,18 @@ const Register = observer(() => {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
+              ref={lastNameRef}
               label="Last Name"
               placeholder="Enter your last name"
               placeholderTextColor={theme.colors.placeholder}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              error={!!errors.email}
+              error={!!errors.lastName}
               autoCapitalize="none"
               style={styles.input}
+              returnKeyType="next"
+              onSubmitEditing={() => pseudoRef.current?.focus()} // Passer au champ pseudo
             />
           )}
         />
@@ -183,6 +200,7 @@ const Register = observer(() => {
           rules={{ required: 'Pseudo is required' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
+              ref={pseudoRef}
               label="Pseudo"
               placeholder="Enter your pseudo"
               placeholderTextColor={theme.colors.placeholder}
@@ -191,6 +209,7 @@ const Register = observer(() => {
               value={value}
               error={!!errors.pseudo}
               style={styles.input}
+              returnKeyType="next"
             />
           )}
         />
@@ -212,8 +231,6 @@ const Register = observer(() => {
             />
           )}
         />
-        {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
-
         {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
         <View style={styles.buttonContainer}>

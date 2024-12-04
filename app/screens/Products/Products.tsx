@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, FlatList } from "react-native";
+import { Text, View, StyleSheet, FlatList, RefreshControl } from "react-native";
 import { useStores } from "../../stores";
 import { Product } from "../../types/Product";
 import { ActivityIndicator, Searchbar } from "react-native-paper";
 import ProductCard from "./ProductCard";
 import theme from "../../settings/Theme";
+
 
 const Products = () => {
   const { apiStore } = useStores();
@@ -12,6 +13,7 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); 
 
   const getProducts = async (): Promise<void> => {
     try {
@@ -40,7 +42,12 @@ const Products = () => {
     };
   }, [searchQuery]);
 
-  // Filter products based on search query
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getProducts(); 
+    setRefreshing(false); 
+  };
+
   const filteredProducts = products.filter(product =>
     product.model.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -58,7 +65,6 @@ const Products = () => {
         }}
         placeholderTextColor={theme.colors.disabled}
       />
-
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -69,12 +75,20 @@ const Products = () => {
           data={filteredProducts}
           renderItem={({ item }) => <ProductCard product={item} />} 
           showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()} 
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary]}
+            />
+          }
         />
       )}
-
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

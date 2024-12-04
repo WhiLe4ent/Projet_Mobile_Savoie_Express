@@ -23,6 +23,7 @@ import theme from "../../settings/Theme";
 import { Role } from "../../types/User";
 import { useStores } from "../../stores";
 
+
 const DeliveryDetails = ({ route }: { route: any }) => {
   const { delivery } = route.params;
   const [updatedDelivery, setUpdatedDelivery] = useState(delivery);
@@ -51,7 +52,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     { label: "Date d’arrivée", field: Steps.ConvoyageDate, type: "date", allowedRoles: [Role.convoyage, Role.rco] },
     { label: "Date contrôle qualité", field: Steps.QualityControlDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
     { label: "Packaging requis", field: Steps.PackagingRequired, type: "boolean", allowedRoles: [Role.vendeur, Role.rco] },
-    { label: "Statut de financement", field: Steps.FinancingStatus, type: "text", allowedRoles: [Role.financialManager, Role.rco] },
+    { label: "Statut de financement", field: Steps.FinancingStatus, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
     { label: "Paiement reçu", field: Steps.PaymentReceived, type: "boolean", allowedRoles: [Role.financialManager, Role.rco] },
     { label: "Date de livraison", field: Steps.DeliveryDate, type: "date", allowedRoles: [Role.vendeur, Role.rco] },
     { label: "Packaging prêt", field: Steps.PackagingReady, type: "boolean", allowedRoles: [Role.accessoiriste, Role.rco] },
@@ -68,17 +69,23 @@ const DeliveryDetails = ({ route }: { route: any }) => {
   };
   
   const [currentStep, setCurrentStep] = useState(
-    stepsArray.findIndex((step) => !updatedDelivery[step.field]) === -1
+    stepsArray.findIndex((step) => {
+      const value = updatedDelivery[step.field];
+      return value === undefined || value === null || value === ''; 
+    }) === -1
       ? stepsArray.length
-      : stepsArray.findIndex((step) => !updatedDelivery[step.field]) + 1
+      : stepsArray.findIndex((step) => {
+          const value = updatedDelivery[step.field];
+          return value === undefined || value === null || value === ''; 
+        }) + 1
   );
-
+  
   const handleSave = async () => {
     try {
       const docRef = doc(FIREBASE_DB, "deliveries", delivery.id);
       await updateDoc(docRef, updatedDelivery);
   
-      await sendEmailNotification();
+      // await sendEmailNotification();
   
       Alert.alert("Success", "Modifications enregistrées et email envoyé !");
 
@@ -150,7 +157,7 @@ const DeliveryDetails = ({ route }: { route: any }) => {
     const step = stepsArray[stepIndex];
     const isCompleted = !!updatedDelivery[step.field];
     const isEditable = canEditStep(step);
-  
+
     return (
       <View key={step.field} style={styles.stepContainer}>
         {step.type === "boolean" && !isEditable && (
@@ -163,42 +170,41 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             )}
           </View>
         )}
-  
-        {(step.type === "text") && (
+
+        {step.type === "boolean" && isEditable && (
           <View style={styles.booleanCard}>
             <Text style={styles.label}>{step.label}</Text>
-            {(isCompleted && !isEditable && step.field!==Steps.FinancingStatus) ?
-              (<View>
-                {step.type === "text" && isEditable && (
+            <Switch
+              value={updatedDelivery[step.field] !== undefined ? updatedDelivery[step.field] : false}
+              onValueChange={(value) => handleInputChange(step.field, value)}
+            />
+          </View>
+        )}
+
+
+        {step.type === "text" && (
+          <View style={styles.booleanCard}>
+            <Text style={styles.label}>{step.label}</Text>
+            {isCompleted && !isEditable && step.field !== Steps.FinancingStatus ? (
+              <View>
+                <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
+              </View>
+            ) : (
+              <View>
+                {isEditable && (
                   <TextInput
                     style={styles.input}
                     value={updatedDelivery[step.field] || ""}
                     onChangeText={(value) => handleInputChange(step.field, value)}
                   />
                 )}
-              <Text style={styles.completedStepText}>{updatedDelivery[step.field]}</Text>
-              </View>) : 
-              ( <View>
-                  {isEditable && (
-                    <TextInput
-                      style={styles.input}
-                      value={updatedDelivery[step.field] || ""}
-                      onChangeText={(value) => handleInputChange(step.field, value)}
-                    />
-                  )}
-                  {updatedDelivery[step.field] === "done" ? (
-                    <Icon source={"check-circle-outline"} size={24} color="#71d177" />
-                  ) : (
-                    <Icon source={"close-circle-outline"} size={24} color="#e00000" />
-                  )}
-                </View>
-              )
-            }
+              </View>
+            )}
           </View>
         )}
-  
-        {isEditable && step.type === "date" && (
-          <View style={styles.conainerDatePicker}>
+
+        {step.type === "date" && isEditable && (
+          <View style={styles.containerDatePicker}>
             <Text style={styles.labelDate}>{step.label}</Text>
             <TouchableOpacity
               onPress={() => setActiveDatePicker(step.field)}
@@ -224,10 +230,10 @@ const DeliveryDetails = ({ route }: { route: any }) => {
             )}
           </View>
         )}
-
       </View>
     );
   };
+
   
 
   const handleDelete = async () => {
@@ -251,19 +257,19 @@ const DeliveryDetails = ({ route }: { route: any }) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={100}
     >      
+      <View style={styles.progressBarContainer}>
+        <View
+          style={[
+            styles.progressBar,
+            { width: `${((currentStep + 1) / stepsArray.length) * 100}%` },
+          ]}
+        />
+      </View>
       <ScrollView 
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[
-              styles.progressBar,
-              { width: `${((currentStep + 1) / stepsArray.length) * 100}%` },
-            ]}
-          />
-        </View>
 
         {stepsArray.slice(0, currentStep + 1).map((_, index) => renderStep(index))}
         {showDatePicker && (
@@ -308,17 +314,6 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 
         {currentUserRole !== Role.secretariat &&
           <View>
-            <Button
-              mode="contained"
-              style={styles.saveButton}
-              onPress={handleSave}
-            >
-              <View style={styles.buttonContent}>
-                <Icon source={"content-save"} size={22} color="white" />
-                <Text style={[styles.buttonText, { ...theme.fonts.labelLarge }]}>Enregistrer les modifications</Text>
-              </View>
-            </Button>
-
             {currentUserRole == Role.vendeur &&  
               <Button 
                 onPress={()=>setOpenModal(true)} 
@@ -361,8 +356,18 @@ const DeliveryDetails = ({ route }: { route: any }) => {
 
           </View>
         }
-
       </ScrollView>
+      {currentUserRole !== Role.secretariat && (
+        <Button
+          mode="contained"
+          style={styles.floatingButton}
+          onPress={handleSave}
+        >
+          <View style={styles.buttonContent}>
+            <Icon source={"content-save"} size={22} color="white" />
+          </View>
+        </Button>
+    )}
     </KeyboardAvoidingView>
   );
 };
@@ -402,11 +407,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     paddingVertical: 12,
     paddingHorizontal: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   modalOverlay: {
     flex: 1,
@@ -508,6 +509,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  floatingButton: {
+    position: "absolute",
+    bottom: 50,
+    right: 20,
+    width: 60, 
+    height: 60,
+    borderRadius: 30, 
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#007BFF", 
+    elevation: 5, 
+    zIndex: 999,
+  },
   completedStepContainer: {
     backgroundColor: "#f0f0f0",
     borderRadius: 8,
@@ -516,7 +530,7 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 16,
   },
-  conainerDatePicker:{
+  containerDatePicker:{
     backgroundColor: "#f9f9f9",
     borderWidth: 1,
     borderColor: "#ccc",

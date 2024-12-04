@@ -12,7 +12,7 @@ const Home = () => {
   const user: User | null = userStore.user;
 
   const goToCreateDelivery = () => {
-    navigation.navigate('Deliveries', { screen: 'CreateDelivery' });
+    navigation.navigate('Livraisons', { screen: 'CreateDelivery' });
   };
   
   const signOut = async () => {
@@ -40,7 +40,7 @@ const Home = () => {
 
         <Divider style={styles.divider} />
 
-        {(user?.role == Role.vendeur ) &&
+        {(user?.role == Role.vendeur || user?.role == Role.rco ) &&
           <Button
             mode="contained"
             style={styles.button}
@@ -53,7 +53,7 @@ const Home = () => {
         <Button
           mode="contained"
           style={styles.button}
-          onPress={() => navigation.navigate('Deliveries', { screen: 'DeliveriesList' })}
+          onPress={() => navigation.navigate('Livraisons', { screen: 'DeliveriesList' })}
         >
           Suivre une livraison
         </Button>

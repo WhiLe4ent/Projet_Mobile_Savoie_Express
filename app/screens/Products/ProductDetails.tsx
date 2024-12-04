@@ -40,7 +40,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
   const handlePress = () => {
     console.log("product details : " + JSON.stringify(product))
     if (product)
-    navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} });
+    navigation.navigate("Livraisons", { screen: "CreateDelivery", params: {product} });
 
   };
 
@@ -90,13 +90,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ route }) => {
         </View>
       </View>
 
-      {(user?.role == Role.vendeur ) &&
+      {(user?.role == Role.vendeur || user?.role == Role.rco  ) &&
         <View style={styles.buttonContainer}>
           <Button 
             mode="contained" 
             style={styles.button} 
             icon="cart"
-            onPress={() => navigation.navigate("Deliveries", { screen: "CreateDelivery", params: {product} })}
+            onPress={handlePress}
           >
             Commander maintenant
           </Button>

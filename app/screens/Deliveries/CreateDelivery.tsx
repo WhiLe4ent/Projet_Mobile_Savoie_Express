@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Alert, ScrollView,} from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Alert, ScrollView,BackHandler, } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../../../FirebaseConfig";
 import { Dropdown } from "react-native-element-dropdown";
@@ -12,6 +12,9 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { DeliveryForm, DeliveryKeys } from "../../types/DeliveryForm";
 import theme from "../../settings/Theme";
 import { Product } from "../../types/Product";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
+
 
 type CreateDeliveryProps = NativeStackScreenProps<RootStackParamList, "CreateDelivery">;
 
@@ -71,12 +74,70 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     fetchProducts();
   }, [apiStore]);
 
+  
+  useEffect(() => {
+    const backAction = () => {
+      if (Platform.OS === 'android') {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0, 
+            routes: [{ name: "TabNavigator" }]
+          })
+        );
+        return true;
+      }
+     
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "TabNavigator" }]
+        })
+      );
+      return true; 
+    };
+  
+    if (Platform.OS === 'android') {
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+      return () => backHandler.remove();
+    }
+  
+    return () => {};
+  }, [navigation]);
+  
+  
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === "model") {
+        const selectedProduct = products.find((product) => product.model === value.model);
+        if (selectedProduct) {
+          setValue("reference", selectedProduct.reference || "");
+          setValue("numberId", selectedProduct.size || "");
+          setValue("color", selectedProduct.color || "");
+          setValue("physicalSite", selectedProduct.currentSite || "");
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, products, setValue]);
+
   const saveDelivery = async (data: DeliveryForm) => {
     try {
-      const newDelivery = { ...data, createdAt: new Date().toISOString() };
+      const isOnline = (await NetInfo.fetch()).isConnected;
+  
+      if (!isOnline) {
+        const cachedDeliveries = JSON.parse(await AsyncStorage.getItem("offlineDeliveries") || "[]") ;
+        const newCachedDelivery = { ...data, createdAt: new Date().toISOString() };
+        cachedDeliveries.push(newCachedDelivery);
+        await AsyncStorage.setItem("offlineDeliveries", JSON.stringify(cachedDeliveries));
+  
+        Alert.alert("Succès", "Livraison sauvegardée hors ligne. Elle sera synchronisée dès que vous serez en ligne.");
+        return;
+      }
+  
       const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
-      await addDoc(deliveriesCollectionRef, newDelivery);
-
+      await addDoc(deliveriesCollectionRef, { ...data, createdAt: new Date().toISOString() });
+  
       Alert.alert("Succès", "Votre livraison a bien été créée.");
       navigation.dispatch(
         CommonActions.reset({
@@ -88,7 +149,47 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
       Alert.alert("Erreur", "Une erreur est survenue lors de la sauvegarde.");
     }
   };
-
+  
+  const syncOfflineDeliveries = async () => {
+    try {
+      let cachedDeliveries = [];
+      try {
+        cachedDeliveries = JSON.parse(await AsyncStorage.getItem("offlineDeliveries") || "[]");
+      } catch (error) {
+        console.error("Erreur de parsing JSON :", error);
+        return;
+      }
+  
+      if (cachedDeliveries.length === 0) return;
+  
+      for (const delivery of cachedDeliveries) {
+        try {
+          const deliveriesCollectionRef = collection(FIREBASE_DB, "deliveries");
+          await addDoc(deliveriesCollectionRef, delivery);
+        } catch (error) {
+          console.error("Erreur de synchronisation :", error);
+          return;
+        }
+      }
+  
+      await AsyncStorage.removeItem("offlineDeliveries");
+      Alert.alert("Succès", "Les livraisons hors ligne ont été synchronisées.");
+    } catch (error) {
+      console.error("Erreur lors de la synchronisation :", error);
+    }
+  };
+  
+  
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state: { isConnected: any; }) => {
+      if (state.isConnected) {
+        syncOfflineDeliveries();
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
+  
   const checkValidName: SubmitHandler<DeliveryForm> = async (data) => {
     const isValid = await apiStore.checkDeliveryName(data.title);
     if (!isValid) {
@@ -103,23 +204,11 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
   };
 
   const handleNext = async () => {
-    const isValid = await trigger()
-    if(!isValid) return
+    const isValid = await trigger(["title", "type", "destinationSite", "notes"]);
+    if (!isValid) return;
     if (currentStep === 1 && !stepsCompleted) {
       Alert.alert("Erreur", "Veuillez valider le titre avant de continuer.");
       return;
-    }
-    if(currentStep===2) {
-      const selectedProduct = products.filter(product => product.model === formValues.model)[0]
-      reset({
-        model: selectedProduct.model,
-        reference: selectedProduct.reference,
-        numberId: selectedProduct.size,
-        color: selectedProduct.color,
-        physicalSite: selectedProduct.currentSite,
-        destinationSite: selectedProduct.destinationSite,
-        notes: "",
-      })
     }
     setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
@@ -134,8 +223,9 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView 
-        keyboardShouldPersistTaps="handled" 
+        contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled" 
       >
         
         {/* Step 1 */}
@@ -174,7 +264,7 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
               rules={{ required: "Type est requis" }}
               render={({ field: { onChange, value } }) => (
                 <DropdownField
-                  label="Type*"
+                  label="Type de livraison*"
                   placeholder="Choisissez un type"
                   data={deliveryTypes}
                   value={value}
@@ -269,22 +359,27 @@ const CreateDelivery: React.FC<CreateDeliveryProps> = ({ navigation, route }) =>
     </View>
   );
 
-  const DropdownField = ({ label, data, value, onChange, error, placeholder }: any) => (
-    <View>
-      <Text style={styles.label}>{label}</Text>
-      <Dropdown
-        style={[styles.dropdown, error && { borderColor: "red" }]}
-        data={data}
-        placeholder={placeholder}
-        labelField="label"
-        valueField="value"
-        value={value}
-        placeholderStyle={{color: theme.colors.placeholder}}
-        onChange={(item) => onChange(item.value)}
-      />
-      {error && <Text style={styles.errorText}>{error}</Text>}
-    </View>
-  );
+  const DropdownField = ({ label, data, value, onChange, error, placeholder }: any) => {
+    const isSearchEnabled = label === "Modèle*";
+    return (
+      <View>
+        <Text style={styles.label}>{label}</Text>
+        <Dropdown
+          style={[styles.dropdown, error && { borderColor: "red" }]}
+          data={data}
+          placeholder={placeholder}
+          labelField="label"
+          valueField="value"
+          value={value}
+          placeholderStyle={{ color: theme.colors.placeholder }}
+          onChange={(item) => onChange(item.value)}
+          search={isSearchEnabled}
+        />
+        {error && <Text style={styles.errorText}>{error}</Text>}
+      </View>
+    );
+  };
+  
 
 const styles = StyleSheet.create({
   container: {
@@ -293,6 +388,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: "#fff",
     paddingBottom: 30
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 0,
   },
   button: { 
     backgroundColor: '#007BFF',

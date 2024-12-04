@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Modal } from "react-native";
+import { View, StyleSheet, FlatList, Modal, RefreshControl } from "react-native";
 import { ActivityIndicator, IconButton, Text, Button } from "react-native-paper";
 import { useStores } from "../../stores";
 import { Delivery } from "../../types/Delivery";
@@ -13,6 +13,7 @@ const DeliveriesList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSortedByDate, setIsSortedByDate] = useState<"asc" | "desc" | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [openSortModal, setOpenSortModal] = useState<boolean>(false);
 
   const getDeliveries = async (sortOrder?: "asc" | "desc"): Promise<void> => {
@@ -42,6 +43,12 @@ const DeliveriesList = () => {
   useEffect(() => {
     getDeliveries();
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true); 
+    await getDeliveries();
+    setRefreshing(false);
+  };
 
   const filteredDeliveries = deliveries.filter((delivery) =>
     delivery.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -73,7 +80,7 @@ const DeliveriesList = () => {
             icon="filter-variant"
             size={20}
             iconColor="white"
-            onPress={()=> setOpenSortModal(true)}
+            onPress={() => setOpenSortModal(true)}
           />
         </View>
       </View>
@@ -90,6 +97,13 @@ const DeliveriesList = () => {
           renderItem={({ item }) => <DeliveryCard delivery={item} />}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing} 
+              onRefresh={onRefresh} 
+              colors={[theme.colors.primary]}
+            />
+          }
         />
       )}
 
@@ -98,7 +112,7 @@ const DeliveriesList = () => {
         visible={openSortModal}
         transparent
         animationType="fade"
-        onRequestClose={()=> setOpenSortModal(false)}
+        onRequestClose={() => setOpenSortModal(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -111,7 +125,7 @@ const DeliveriesList = () => {
             </Button>
             <Button 
               mode="outlined"  
-              onPress={()=> setOpenSortModal(false)} 
+              onPress={() => setOpenSortModal(false)} 
               style={styles.cancelText}>
                 Annuler
               </Button>
@@ -121,6 +135,7 @@ const DeliveriesList = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

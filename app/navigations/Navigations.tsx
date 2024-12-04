@@ -23,7 +23,7 @@ const linking: LinkingOptions<RootStackParamList> = {
   prefixes: ['savoieexpress://', 'https://savoieexpress.com'],
   config: {
     screens: {
-      Deliveries:  'DeliveriesList'
+      Livraisons:  'DeliveriesList'
     },
   },
 };
@@ -73,7 +73,7 @@ const Navigations = observer(() => {
             component={TabNavigator}
           />
           <Stack.Screen
-            name="Deliveries"
+            name="Livraisons"
             component={DeliveryNavigator}
             options={{ headerShown: false }}
           />
@@ -81,11 +81,6 @@ const Navigations = observer(() => {
             name="Products"
             component={Products}
             options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ProductDetails"
-            component={ProductDetails}
-            options={{ title: 'Product Details' }}
           />
         </Stack.Navigator>
       </SheetProvider>

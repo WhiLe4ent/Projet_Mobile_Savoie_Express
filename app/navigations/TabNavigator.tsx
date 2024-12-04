@@ -5,12 +5,9 @@ import React from 'react';
 import Home from '../screens/Home/Home';
 import DeliveryNavigator from './DeliveryNavigator';
 import ProductNavigator from './ProductNavigator';
+import { RootStackParamList } from './RootStackParamList';
 
-const Tab = createBottomTabNavigator();
-
-export type TabStackNavigationList = {
-    Home: undefined;
-};
+const Tab = createBottomTabNavigator<RootStackParamList>();
 
 const headerStyle = {
     backgroundColor: theme.colors.primary
