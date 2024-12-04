@@ -10,19 +10,19 @@ Savoie Express est une application mobile de gestion des utilisateurs, intégran
 ```bash 
    npm i
 ``` 
-Copier-coller le contenu du fichier .env.example et créer un fichier .env</br>
-Remplir ce fichier avec les bons données.</br>
+Copier-coller le contenu du fichier .env.example et créer un fichier .env  <br>
+Remplir ce fichier avec les bons données.  <br>
 
-*IMPORTANT !* Dans EMAIL_PASS c'est pas le mdp de votre addresse mail gmail.</br>
-Voici le lien d'explication:
-https://support.google.com/accounts/answer/185833?hl=en </br>
-Cliquer sur : "Create and manage your app passwords"</br>
+**IMPORTANT !** Dans EMAIL_PASS c'est pas le mdp de votre addresse mail gmail.  <br>
+Voici le lien d'explication:  
+https://support.google.com/accounts/answer/185833?hl=en  <br>
+Cliquer sur : "Create and manage your app passwords"  <br>
 
 2. 
 ```bash 
    nano ../app/settings/Variables.tsx
 ```  
-Dans le fichier app/settings/Variables.tsx
+Dans le fichier app/settings/Variables.tsx  <br>
 Mettre à jour avec votre addresse IP la variable API_URL.
 
 
