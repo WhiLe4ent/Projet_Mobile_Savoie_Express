@@ -6,7 +6,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import { RegisterForm } from '../../types/User';
+import { RegisterForm, Role } from '../../types/User';
 import theme from '../../settings/Theme';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
@@ -22,12 +22,12 @@ const Register = observer(() => {
   const { initialEmail, initialPassword } = route.params as RegisterRouteProps;
   const navigation = useNavigation<any>();
   const roles = [
-    { label: 'Vendeur', value: 'vendeur' },
-    { label: 'RCO', value: 'rco' },
-    { label: 'Convoyeur', value: 'convoyeur' },
-    { label: 'Financial Manager', value: 'financialManager' },
-    { label: 'Secretariat', value: 'secretariat' },
-    { label: 'Expert Produit', value: 'expertProduit' },
+    { label: 'Vendeur', value: Role.vendeur },
+    { label: 'RCO', value: Role.rco },
+    { label: 'Convoyeur', value: Role.convoyage },
+    { label: 'Financial Manager', value: Role.financialManager},
+    { label: 'Secretariat', value: Role.secretariat },
+    { label: 'Expert Produit', value: Role.expertProduit },
   ];
 
   const { control, handleSubmit, formState: { errors }, watch } = useForm<RegisterForm>({
