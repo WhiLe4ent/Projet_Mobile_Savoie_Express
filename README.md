@@ -37,6 +37,11 @@ Pour installer les dépendances, exécutez la commande
  ```bash 
     npx expo start
  ``` 
+Si vous allez tester sur emulateur, d'abord executer:
+  ```bash 
+    npm run android
+ ``` 
+
 Cela démarrera l'application et vous pourrez accéder à la page de connexion pour tester l'authentification.
 
 Dans un autre terminal:
